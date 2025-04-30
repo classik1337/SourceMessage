@@ -1,0 +1,169 @@
+.page {
+  --gray-rgb: 0, 0, 0;
+  --gray-alpha-200: rgba(var(--gray-rgb), .08);
+  --gray-alpha-100: rgba(var(--gray-rgb), .05);
+  --button-primary-hover: #383838;
+  --button-secondary-hover: #f2f2f2;
+  display: flex;
+  grid-template-rows: 20px 1fr 20px;
+  min-height: 100svh;
+  font-family: var(--font-geist-sans);
+  justify-content: center;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --gray-rgb: 255, 255, 255;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+    --button-primary-hover: #ccc;
+    --button-secondary-hover: #1a1a1a;
+  }
+}
+
+.rightProfile {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.overviewText {
+  margin-top: 2vh;
+  font-size: 24px;
+  color: var(--foreground);
+}
+ 
+.userProfileTest {
+  margin-top: 3vh;
+  width: 25vw;
+  height: 80%;
+  background-color: var(--background);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 2px 4px #0000001a;
+  justify-content: flex-start;
+}
+
+.headProfile {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 15%;
+  background-color: #383838;
+  border-top-left-radius: 8px; /* Скругленные углы */
+  border-top-right-radius: 8px; /* Скругленные углы */
+}
+
+.avatar {
+  margin-left: 1vw;
+  margin-top: 3%;
+  position: absolute;
+  z-index: 1;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%; 
+  background-color: #ddd; 
+  
+}
+.checkInfoContainerName {
+  margin-left: 7vw;
+  display: flex;
+  flex-direction: column;
+}
+.username {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  
+}
+.infoProfile {
+  width: 100%;
+  padding: 1.5vh 1vw;
+  margin-top: 8%; /* Отступ от аватара */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+}
+
+.infoProfileContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.8vh 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.overviewTextHelper {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.checkInfoContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Текст - сохраняем текущий стиль */
+
+
+.description {
+  font-size: 0.9rem;
+  color: var(--foreground);
+}
+
+/* Кнопка Change - минималистичный вариант */
+.changeButton a {
+  color: var(--accent-color);
+  font-size: 0.8rem;
+  padding: 0.3vh 0.8vw;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.changeButton a:hover {
+  background-color: var(--accent-light);
+}
+
+.modalInput {
+  width: 100%;
+  padding: 0.8rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modalActions button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modalActions button:first-child {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+}
+
+.modalActions button:last-child {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+}
+
+

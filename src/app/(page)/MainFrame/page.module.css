@@ -1,0 +1,252 @@
+.page {
+  --gray-rgb: 0, 0, 0;
+  --gray-alpha-200: rgba(var(--gray-rgb), .08);
+  --gray-alpha-100: rgba(var(--gray-rgb), .05);
+  --button-primary-hover: #383838;
+  --button-secondary-hover: #f2f2f2;
+  display: flex;
+  grid-template-rows: 20px 1fr 20px;
+  min-height: 100svh;
+  font-family: var(--font-geist-sans);
+  justify-content: center;
+  align-items: center;
+  background-image: 
+  linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
+  url('/background.jpg');
+  background-size: cover; /* Растягивает изображение на весь экран */
+  background-position: center; /* Центрирует картинку */
+  background-repeat: no-repeat; /* Запрещает повторение */
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --gray-rgb: 255, 255, 255;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+    --button-primary-hover: #ccc;
+    --button-secondary-hover: #1a1a1a;
+  }
+}
+
+
+.main {
+  display: flex;
+  flex-direction: row;
+  
+}
+
+.main ol {
+  font-family: var(--font-geist-mono);
+  padding-left: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+  list-style-position: inside;
+}
+
+.main li:not(:last-of-type) {
+  margin-bottom: 8px;
+}
+
+.main code {
+  font-family: inherit;
+  background: var(--gray-alpha-100);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo {
+    filter: invert();
+  }
+}
+
+.left_Container {
+ width: 20vw;
+ height: 99vh;
+ border: solid;
+ border-width: 0.1px;
+ border-right: none;
+ border-top-left-radius: 15px;
+ border-bottom-left-radius: 15px;
+}
+
+.right_Container {
+  width: 79vw;
+  height: 99vh;
+  border: solid;
+  border-width: 0.1px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.left_head_container {
+ width: 100%;
+ height: 7vh;
+ border-bottom: solid;
+ border-width: 0.1px;
+ 
+}
+
+.right_head_container {
+  width: 100%;
+    height: 7vh;
+    border-bottom: solid;
+    border-width: .1px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 30px;
+}
+
+.main_right_container {
+  width: 100%;
+  height: 92vh;
+}
+
+.search_container {
+  display: flex;
+  align-items: center;
+  width: 30vw;
+  border: solid 1px var(--foreground);
+  background-color: var(--background);
+  border-radius: 20px;
+  padding: 5px 30px;
+}
+
+.search_input {
+  width: 30vw;
+  border: none;
+  background: transparent;
+  padding: 8px;
+  outline: none;
+  
+}
+
+
+/* Стили для меню профиля */
+.profile_menu {
+  position: relative;
+}
+
+.profile_button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.profile_button:hover {
+  background: #f5f5f5;
+}
+
+.profile_avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile_name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dropdown_icon {
+  width: 16px;
+  height: 16px;
+  fill: #666;
+}
+
+/* Выпадающее меню */
+.dropdown_menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 10px 0;
+  min-width: 150px;
+  display: none;
+  z-index: 100;
+}
+
+.profile_menu:hover .dropdown_menu {
+  display: block;
+}
+
+.menu_item {
+  display: block;
+  padding: 8px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu_item:hover {
+  background: #f5f5f5;
+}
+.logo_continer {
+  
+}
+
+.left_main_container {
+  width: 100%;
+
+
+}
+
+.ctas {
+  margin-top: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+
+.ctas a {
+  appearance: none;
+  height: 48px;
+  padding: 0 20px;
+  border: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  text-decoration: none; 
+  transition: background-color 0.3s ease,  color 0.3s ease; 
+}
+
+a.primary {
+  border-color: var(--gray-alpha-200);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+a.primary:hover {
+  background-color: var(--gray-alpha-200);
+}
+
+/* a.secondary {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+a.secondary:hover {
+  background-color: var(--foreground-dark); 
+  color: var(--background-light); 
+} */

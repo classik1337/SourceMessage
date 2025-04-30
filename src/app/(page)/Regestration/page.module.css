@@ -1,0 +1,379 @@
+.page {
+  --gray-rgb: 0, 0, 0;
+  --gray-alpha-200: rgba(var(--gray-rgb), .08);
+  --gray-alpha-100: rgba(var(--gray-rgb), .05);
+  --button-primary-hover: #383838;
+  --button-secondary-hover: #f2f2f2;
+  display: flex;
+  grid-template-rows: 20px 1fr 20px;
+  min-height: 100svh;
+  font-family: var(--font-geist-sans);
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --gray-rgb: 255, 255, 255;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+    
+    --button-primary-hover: #ccc;
+    --button-secondary-hover: #1a1a1a;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center
+  
+}
+
+.main ol {
+  font-family: var(--font-geist-mono);
+  padding-left: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+  list-style-position: inside;
+}
+
+.main li:not(:last-of-type) {
+  margin-bottom: 8px;
+}
+
+.main code {
+  font-family: inherit;
+  background: var(--gray-alpha-100);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo {
+    filter: invert();
+  }
+}
+
+@font-face {
+  font-family: "Doto";
+  src: url('./DotoFont.ttf');
+
+}
+
+.header_container {
+  width: 100vw;
+  height: 30vh;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--background);
+  border-bottom: 1px solid var(--gray-alpha-200);
+  flex-direction: column;
+  flex-wrap: nowrap;
+  
+  }
+  
+.header_container::before,
+.header_container::after {
+  content: "";
+  height: 100%;
+  top: 0;
+  width: 10%;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.header_container::before {
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.header_container::after 
+{
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 10vw;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--gray-alpha-200);
+}
+
+.header_logo_container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.header_logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: rotate(15deg);
+}
+
+.header_logo_name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.5px;
+}
+
+.header_menu_container {
+  display: flex;
+  gap: 2rem;
+}
+
+.menu_link {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.menu_link:hover {
+  color: var(--text-color);
+}
+
+.menu_link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #000000, #818181);
+  transition: width 0.3s ease;
+}
+
+.menu_link:hover::after {
+  width: 100%;
+}
+
+.marquee {
+  position: relative;
+  width: 100vw;
+  max-width: 100%;
+  height: 200px;
+  overflow-x: hidden;
+}
+
+.track {
+  position: absolute;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee 30s linear infinite;
+}
+
+.track span {
+  font-family: "Doto";
+  font-weight: 900;
+  font-style: normal;
+  font-variation-settings: "ROND" 10;
+  font-size: 20vh;
+  color: var(--text-color);
+  display: inline; /* Измените на inline вместо inline-block */
+  line-height: 1; /* Убираем лишний межстрочный интервал */
+  vertical-align: top; /* Выравнивание по верху */
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+
+.container {
+  text-align: center;
+  border: 1px solid var(--gray-alpha-200);
+  border-radius: 25px;
+  width: 30vw;
+  height: auto;
+  padding: 2rem;
+  background-color: var(--background);
+  transition: all 0.7s ease-in-out; /* Добавляем плавный переход */
+  overflow: hidden; /* Чтобы содержимое не выходило за границы при анимации */
+}
+
+.container.login {
+  width: 30vw;
+  min-height: 45vh;
+  height: 48vh;
+}
+
+/* Стиль для формы регистрации (больший размер) */
+.container.register {
+  width: 30vw;
+  height: 65vh;
+  min-height: 60vh;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--gray-alpha-200);
+  
+}
+
+.tabButton {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: var(--text-color);;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: all 0.8s ease;
+  border-radius: 30px;
+}
+
+.tabButton.active {
+  opacity: 1;
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-color);
+
+  
+}
+
+.title {
+  font-size: 34px;
+  line-height: 20px;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.formGroup {
+  width: 70%;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.formGroup2 {
+  width: 100%;
+  margin-bottom: 1rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5vh;
+}
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--foreground);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-alpha-200);
+  border-radius: 30px;
+  font-size: 1rem;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.input:focus {
+  border-color: var(--gray-alpha-200);
+  outline: none;
+}
+
+.button {
+  width: 100%;
+  background-color: var(--foreground);
+  color: var(--background);
+  padding: 0.75rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: var(--button-primary-hover);
+  color: var(--background);
+}
+
+.buttonDiff {
+  background-color: var(--background);
+  color: var(--foreground);
+  padding: 0.75rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  
+}
+
+.buttonDiff:hover {
+ opacity: 0.7;
+}
+
+.footer_container {
+  width: 100vw;
+  flex: 1;
+  background-color: #1a1a1a;
+
+  
+}
