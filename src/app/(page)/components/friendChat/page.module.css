@@ -1,0 +1,213 @@
+
+
+.rightFriendChat {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+ 
+.userFriendChat {
+  width: 62vw;
+  height: 100%;
+  /* background-color: var(--background); */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px #0000001a;
+  justify-content: flex-start;
+  min-width: none;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.headFriendChat {
+  position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 6vh;
+    border-bottom: 1px solid var(--foreground);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.infoFriend {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 2vw;
+}
+
+.avatarFriendContiner {
+  
+}
+
+.avatarFriend {
+  width: 40px;
+  height: 40px;
+  border-radius: 25px;
+}
+
+.iconFriend {
+  filter: invert(var(--svg-invert-value));
+  margin-right: 2vh;
+}
+
+.usernameFriend {
+  margin-left: 1vw;
+}
+
+.clickIconsHelp {
+  display: flex;
+  flex-direction: row;
+  
+}
+
+.menu_icon {
+
+}
+
+
+
+
+.mainChat {
+  width: 62vw;
+  height: 95%;
+  /* background-color: var(--background); */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px #0000001a;
+  justify-content: flex-start;
+  min-width: none;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  overflow-y: scroll;
+  scrollbar-width: none; /* Скрыть по умолчанию */
+}
+
+
+
+.message {
+  max-width: 70%;
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.messageContent {
+  padding: 10px 14px;
+  border-radius: 18px;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+}
+
+.messageContentContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.messageText .messageUsername {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.messageDate  {
+  font-size: 0.7em;
+  line-height: 1.4;
+  align-self: flex-end;
+  margin-left: 1vw;
+}
+
+.messageCheck {
+  width: 1em;
+  height: 1em;
+  align-self: flex-end;
+  margin-left: 0.5vw;
+}
+
+.leftMessage {
+  align-self: flex-start;
+}
+
+.leftMessage .messageContent {
+  
+  background-color: #f1f1f1;
+  border-bottom-left-radius: 4px;
+  color: #333;
+}
+
+/* Стили для правых сообщений (ваших) */
+.rightMessage {
+  align-self: flex-end;
+}
+
+.rightMessage .messageContent {
+  background-color: #0084ff;
+  border-bottom-right-radius: 4px;
+  color: white;
+  
+}
+
+
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 0.5vw;
+  margin-right: 0.5vw;
+  margin-top: 2vh;
+}
+
+
+
+
+
+.bottomFriendChat {
+ width: 95%;
+ display: flex;
+ flex-grow: 1;
+ border-radius: 20px;
+ border: 1px solid #ddd;
+ outline: none;
+ margin-bottom: 2vh;
+
+}
+
+.svgPic {
+  width: 30px;
+  height: 30px;
+  filter: invert(var(--svg-invert-value)); /* Inverts the colors */
+  
+
+}
+
+.inputMessage {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  background-color: #ffffff00;
+}
+
+.addButton, .sendButton {
+  padding: 8px 12px;
+ 
+ 
+}
+/* ---------------------------------------------------- */
+
+/* -----------------SCROLL------------------------ */
+
+
+.mainChat:-webkit-scrollbar {
+  display: block;
+  width: 3px;
+  scrollbar-width: thin;
+}

@@ -1,0 +1,87 @@
+.main_Container {
+  grid-area: 1 / 2 / 2 / 3; /* Пример: занимает свою ячейку полностью */
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Отключаем скролл всей страницы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainFrame {
+  width: 100%;
+  height: 100%;
+}
+
+.friendsPage {
+  display: flex;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.leftFriends {
+  width: 18vw;
+  height: 100%;
+  border-right: solid 1px var(--foreground);
+}
+
+.settingFriends {
+  height: 100%;
+  padding: 20px;
+}
+
+.settingPrimary {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  
+}
+
+.settingPrimaryHelper {
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 1vh;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  margin-top: 0.2vh;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.menuItem:hover {
+  background-color: var(--gray-alpha-200);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.menuText {
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background: var(--gray-alpha-200);
+  margin: 16px 0;
+}
+
+.rightFriend {
+  width: 64vw;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}

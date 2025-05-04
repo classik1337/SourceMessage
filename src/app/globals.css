@@ -10,6 +10,7 @@
   --accent-color: #4361ee;
   --accent-light: #e6f0ff;
   --accent-alpha: rgba(67, 97, 238, 0.2);
+  --svg-invert-value: 0%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +23,7 @@
     --background-hover: #3a3a3a;
     --text-primary: #f8f9fa;
     --text-secondary: #adb5bd;
+    --svg-invert-value: 100%;
   }
 }
 

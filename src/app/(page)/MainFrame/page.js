@@ -2,12 +2,24 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import Profile from "../Profile/page";
+import Friends from "../Friends/page";
 import { useRouter } from 'next/navigation'; 
 import { useState } from 'react';
 
 
 
 export default function MainFrame() {
+  const [openProfile, setOpenProfile] = useState(false); // profile
+  const [openFriends, setOpenFriends] = useState(false); // friends
+  const handleOpenProfile = () => {
+    setOpenProfile(true);
+    setOpenFriends(false); // Закрываем друзей при открытии профиля
+  };
+  
+  const handleOpenFriends = () => {
+    setOpenFriends(true);
+    setOpenProfile(false); // Закрываем профиль при открытии друзей
+  };
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -38,26 +50,21 @@ export default function MainFrame() {
           <a
           
             className={styles.primary}
-            href="" //src to link friends
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#" //src to link friends
+            onClick={handleOpenFriends}
           >
             
             Friends
           </a>
           <a
             className={styles.primary}
-            href="" //src to link chat
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#" //src to link chat
           >
            
             Chat
           </a>
           <a
-            href=""
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#"
             className={styles.primary}
           >
             Server
@@ -88,14 +95,15 @@ export default function MainFrame() {
                 
                 {/* Выпадающее меню (появляется при клике/наведении) */}
                 <div className={styles.dropdown_menu}>
-                  <a href="#" className={styles.menu_item}>Мой профиль</a>
-                  <a href="#" className={styles.menu_item}>Настройки</a>
+                  <a href="#" onClick={handleOpenProfile} className={styles.menu_item}>Настройки</a>
                   <a href="#" onClick={handleLogout} className={styles.menu_item}>Выйти</a>
                 </div>
               </div>
             </div>
             <div className={styles.main_right_container}>
-              <Profile></Profile>
+               {openProfile && <Profile/>}
+               {openFriends && <Friends/>}
+              
             </div>
           </div>
       </main>
