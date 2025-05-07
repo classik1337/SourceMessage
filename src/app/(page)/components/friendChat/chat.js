@@ -3,214 +3,290 @@ import Image from "next/image"
 import styles from "./page.module.css"
 import { useState, useRef, useEffect } from "react";
 
-
-
-export default function FriendChat() {
-
-
-
+export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose }) {
+  const [profile, setProfile] = useState({ id: '', avatar: "", secondlogin: "", });
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/auth/profile');
+        if (!response.ok) throw new Error('Failed to fetch profile');
+        
+        const userData = await response.json();
+        setProfile({
+          id: userData.id,
+          avatar: userData.avatar,
+          secondlogin: userData.secondlogin
+        });
+      } catch (error) {
+        console.error('Profile load error:', error);
+        setError('Failed to load profile data');
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    if (!profile.id || !idFriend) return;
+    
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch(
+          `/api/chat/chatMain?myId=${profile.id}&friendId=${idFriend}`,
+          {
+            method: 'GET',
+            headers: { 
+              'Authorization': `Bearer ${localStorage.getItem('token')}` 
+            },
+            credentials: 'include'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Ошибка загрузки сообщений');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.messages) {
+          throw new Error('Некорректный формат ответа от сервера');
+        }
+
+        const formattedMessages = data.messages.map(msg => ({
+          id: msg.id,
+          text: msg.content,
+          time: new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMine: msg.sender_id === profile.id,
+          isRead: msg.is_read
+        }));
+        
+        setMessages(formattedMessages);
+      } catch (err) {
+        console.error('Ошибка:', err);
+        setError('Не удалось загрузить сообщения');
+      }
+    };
+
+    fetchMessages();
+  }, [profile.id, idFriend.idFriend]);
+
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const users = {
     me: {
-      id: 1,
-      name: "Вы",
-      avatar: "/castle.jpg"
+      id: profile.id,
+      name: profile.secondlogin,
+      avatar: profile.avatar
     },
     friend: {
-      id: 2,
-      name: "Друг",
-      avatar: "/castle.jpg"
+      id: idFriend.idFriend,
+      name: nameFriend,
+      avatar: avatarSrc
     }
   };
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hey! Got a minute to chat?", isMine: false },
-    { id: 2, text: "Sure, what's up?", isMine: true },
-    { id: 3, text: "Just wanted to check how the project is going", isMine: false },
-    { id: 4, text: "Making good progress on the UI components", isMine: true },
-    { id: 5, text: "That's great! Need any design feedback?", isMine: false },
-    { id: 6, text: "Maybe later - still working on core functionality", isMine: true },
-    { id: 7, text: "Understood. The API endpoints are ready when you need them", isMine: false },
-    { id: 8, text: "Perfect, I'll integrate them tomorrow", isMine: true },
-    { id: 9, text: "By the way, have you seen the new framework update?", isMine: false },
-    { id: 10, text: "Not yet - worth checking out?", isMine: true },
-    { id: 11, text: "Definitely! It has better TypeScript support now", isMine: false },
-    { id: 12, text: "Nice! I'll update my dependencies this weekend", isMine: true },
-    { id: 13, text: "How's the mobile responsiveness coming along?", isMine: false },
-    { id: 14, text: "Almost done - just fixing some tablet layouts", isMine: true },
-    { id: 15, text: "Awesome! Users will love the adaptive design", isMine: false },
-    { id: 16, text: "Hope so! Mobile traffic is growing fast", isMine: true },
-    { id: 17, text: "Exactly why we prioritized it. Smart move!", isMine: false },
-    { id: 18, text: "Thanks! Your analytics reports helped make the case", isMine: true },
-    { id: 19, text: "Data doesn't lie! Speaking of which, need any metrics?", isMine: false },
-    { id: 20, text: "Could use conversion tracking on the new features", isMine: true },
-    { id: 21, text: "I'll set up the event tracking this afternoon", isMine: false },
-    { id: 22, text: "Appreciate it! That'll help with the investor demo", isMine: true },
-    { id: 23, text: "About that - want to practice your pitch with me?", isMine: false },
-    { id: 24, text: "That would be amazing! Free tomorrow at 2?", isMine: true },
-    { id: 25, text: "Perfect, calendar invite sent", isMine: false },
-    { id: 26, text: "Got it. I'll prepare some slides", isMine: true },
-    { id: 27, text: "Keep it to 5 key metrics - investors love brevity", isMine: false },
-    { id: 28, text: "Good tip! I'll focus on growth and retention", isMine: true },
-    { id: 29, text: "Exactly. Maybe one technical differentiator too", isMine: false },
-    { id: 30, text: "Our real-time algorithm would impress them", isMine: true },
-    { id: 31, text: "100% - nobody else has that latency at our scale", isMine: false },
-    { id: 32, text: "Our secret sauce! But shhh...", isMine: true },
-    { id: 33, text: "Haha, patent pending! Anyway, lunch?", isMine: false },
-    { id: 34, text: "Can't today - debugging session with the team", isMine: true },
-    { id: 35, text: "No worries. Found those memory leaks yet?", isMine: false },
-    { id: 36, text: "Three down, one nasty one still hiding", isMine: true },
-    { id: 37, text: "Try the new profiler tool - saved me hours last week", isMine: false },
-    { id: 38, text: "Will do! Thanks for the suggestion", isMine: true },
-    { id: 39, text: "Anytime. Ping me if you hit a wall", isMine: false },
-    { id: 40, text: "You're a lifesaver! Talk later", isMine: true }
-  ]); // ваш массив сообщений
 
-  // Функция для прокрутки вниз
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  if (error) {
+    return (
+      <div className={styles.rightFriendChat}>
+        <div className={styles.errorMessage}>{error}</div>
+      </div>
+    );
+  }
+
+  const sendMessage = async () => {
+    if (!messageText.trim()) return; // Не отправляем пустые сообщения
+    
+    try {
+      // 1. Создаем временное сообщение (для мгновенного отображения)
+      const tempMessage = {
+        id: Date.now(), // Временный ID
+        text: messageText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isMine: true,
+        isRead: false
+      };
+      
+      setMessages(prev => [tempMessage, ...prev ]);
+      setMessageText(''); // Очищаем input
+      
+      // 2. Отправляем на сервер
+      const response = await fetch('/api/chat/chatSender', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          content: messageText,
+          senderId: profile.id, // отправитель
+          receiverId: idFriend //получатель
+        })
+      });
+      console.log(messageText,profile.id,idFriend)
+      if (!response.ok) throw new Error('Ошибка отправки1');
+      
+
+      
+    } catch (error) {
+      console.error('Ошибка отправки2:', error);
+      // Удаляем временное сообщение при ошибке
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+      setMessageText(tempMessage.text); // Возвращаем текст в input
+    }
   };
 
-  // Автопрокрутка при изменении сообщений
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]); // Срабатывает при каждом изменении messages
-
-  
 
   return (
     <div className={styles.rightFriendChat}>
-    <div className={styles.userFriendChat}>
-      <div className={styles.headFriendChat}>
-        <div className={styles.infoFriend}>
-          <div className={styles.avatarFriendContiner}>
-          <Image
+      <div className={styles.userFriendChat}>
+        <div className={styles.headFriendChat}>
+          <div className={styles.infoFriend}>
+            <div className={styles.avatarFriendContiner}>
+              <Image
                 className={styles.avatarFriend}
-                src={"/castle.jpg"}
+                src={avatarSrc}
                 alt="Аватар"
                 width={30}
                 height={30}
                 priority
               />
+            </div>
+            <div className={styles.usernameFriend}>{nameFriend}</div>
           </div>
-          <div className={styles.usernameFriend}>User</div>
+          <div className={styles.clickIconsHelp}>
+            <div className={styles.menu_icon}>
+              <Image
+                className={styles.iconFriend}
+                src="/phone.svg"
+                alt="Телефон"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div className={styles.menu_icon}>
+              <Image
+                className={styles.iconFriend}
+                src="/phone.svg"
+                alt="Видеозвонок"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div className={styles.menu_icon}>
+              <Image
+                className={styles.iconFriend}
+                src="/more-vertical.svg"
+                alt="Меню"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div className={styles.menu_icon}>
+              <button onClick={onClose} className={styles.closeButton}>×</button>
+            </div>
+          </div>
         </div>
-        <div className={styles.clickIconsHelp}>
-          <div className={styles.menu_icon}>
-            <Image
-                className={styles.iconFriend}
-                src={"/phone.svg"}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
-              </div>
-          <div className={styles.menu_icon}>
-          <Image
-                className={styles.iconFriend}
-                src={"/phone.svg"}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
-          </div>
-          <div className={styles.menu_icon}>
-          <Image
-                className={styles.iconFriend}
-                src={"/more-vertical.svg"}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
-          </div>
-        </div>
-      </div>
-      <div className={styles.mainChat}>
-        {messages.map((message) => {
-          const user = message.isMine ? users.me : users.friend;
-          
-          return message.isMine ? (
-            // Правое сообщение (мое)
-            <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
-              <div className={styles.messageContent}>
-                <div className={styles.messageUsername}>{user.name}</div>
-                <div className={styles.messageContentContainer}>
-                  <div className={styles.messageText}>{message.text}</div>
-                  <span className={styles.messageDate}>{message.time}</span>
+
+        <div className={styles.mainChat}>
+        {messages.length > 0 ? (
+        [...messages].reverse().map((message) => {
+        const user = message.isMine ? users.me : users.friend;
+              
+              return message.isMine ? (
+                <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
+                  <div className={styles.messageContent}>
+                    <div className={styles.messageUsername}>{user.name}</div>
+                    <div className={styles.messageContentContainer}>
+                      <div className={styles.messageText}>{message.text}</div>
+                      <span className={styles.messageDate}>{message.time}</span>
+                      {message.isRead && (
+                        <Image
+                          className={styles.messageCheck}
+                          src="/check.svg" 
+                          alt="Прочитано"
+                          width={15}
+                          height={15}
+                          priority
+                        />
+                      )}
+                    </div>
+                  </div>
                   <Image
-                    className={styles.messageCheck}
-                    src="/check.svg" 
-                    alt="Прочитано"
-                    width={15}
-                    height={15}
+                    className={styles.avatar}
+                    src={user.avatar}
+                    alt="Аватар"
+                    width={30}
+                    height={30}
                     priority
                   />
                 </div>
-              </div>
-              <Image
-                className={styles.avatar}
-                src={user.avatar}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
-            </div>
-          ) : (
-            // Левое сообщение (друга)
-            <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
-              <Image
-                className={styles.avatar}
-                src={user.avatar}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
-              <div className={styles.messageContent}>
-                <div className={styles.messageUsername}>{user.name}</div>
-                <div className={styles.messageContentContainer}>
-                  <div className={styles.messageText}>{message.text}</div>
-                  <span className={styles.messageDate}>{message.time}</span>
+              ) : (
+                <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
+                  <Image
+                    className={styles.avatar}
+                    src={user.avatar}
+                    alt="Аватар"
+                    width={30}
+                    height={30}
+                    priority
+                  />
+                  <div className={styles.messageContent}>
+                    <div className={styles.messageUsername}>{user.name}</div>
+                    <div className={styles.messageContentContainer}>
+                      <div className={styles.messageText}>{message.text}</div>
+                      <span className={styles.messageDate}>{message.time}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
-      
-    
-      <div className={styles.bottomFriendChat}>
-        <a href="#add" className={styles.addButton}> 
-          <Image
-          className={styles.svgPic}
-          src={"/plus-circle.svg"}
-          alt={"userAvatar"}
-          width={30}
-          height={30}
-          
-          
-          priority
-          />
+              );
+            })
+          ) : (
+            <div className={styles.noMessages}>Нет сообщений</div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className={styles.bottomFriendChat}>
+          <a href="#" className={styles.addButton}>
+            <Image
+              className={styles.svgPic}
+              src="/plus-circle.svg"
+              alt="Добавить"
+              width={30}
+              height={30}
+              priority
+            />
           </a>
-        <input 
-          className={styles.inputMessage}
-          placeholder="Type a message..."
-        />
-        <a href="#send" className={styles.sendButton}>
-          <Image
-          className={styles.svgPic}
-          src={"/arrow-right-circle.svg"}
-          alt={"userAvatar"}
-          width={30}
-          height={30}
-          priority
-          /></a>
+          <input 
+             className={styles.inputMessage}
+             placeholder="Напишите сообщение..."
+             value={messageText}
+             onChange={(e) => setMessageText(e.target.value)}
+             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <a href="#" onClick={sendMessage} className={styles.sendButton}>
+            <Image
+              className={styles.svgPic}
+              src="/arrow-right-circle.svg"
+              alt="Отправить"
+              width={30}
+              height={30}
+              priority
+            />
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-  )
+  );
 }

@@ -107,7 +107,8 @@
 
 .messageContentContainer {
   display: flex;
-  flex-direction: row;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .messageText .messageUsername {
@@ -126,7 +127,7 @@
   width: 1em;
   height: 1em;
   align-self: flex-end;
-  margin-left: 0.5vw;
+  
 }
 
 .leftMessage {

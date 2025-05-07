@@ -1,17 +1,24 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import { useState, useEffect } from "react"; // Добавлен импорт useState и useEffect
+import { useState, useEffect } from "react";
 import FriendChat from "../components/friendChat/chat";
 
 export default function Friends() {
-  const [friends, setFriends] = useState([]); // Переименовано из profile в friends
-  const [error, setError] = useState(null); // Добавлено состояние для ошибок
+  const [friends, setFriends] = useState([]);
+  const [error, setError] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+  const [currentFriend, setCurrentFriend] = useState(null);
 
-  // Компонент MenuItem вынесен внутрь Friends, чтобы иметь доступ к состоянию
+  const handleFriendClick = (friendData) => {
+    setCurrentFriend(friendData);
+    setShowChat(true);
+  };
+
   const MenuItem = ({ 
     avatarSrc = "/castle.jpg", 
     nameFriend = "NameFriends",
     idFriend = "#1",
+    onClick
   }) => (
     <div className={styles.menuItem}>
       <Image
@@ -22,11 +29,19 @@ export default function Friends() {
         height={30}
         priority
       />
-      <a className={styles.menuText} href={`#${idFriend}`}>{nameFriend}</a>
+      <a 
+        className={styles.menuText} 
+        onClick={(e) => {
+          e.preventDefault();
+          onClick();
+        }} 
+        href={`#${idFriend}`}
+      >
+        {nameFriend}
+      </a>
     </div>
   );
 
-  // Получение данных друзей
   useEffect(() => {
     const fetchFriends = async () => {
       try {
@@ -34,8 +49,6 @@ export default function Friends() {
         if (!response.ok) throw new Error('Failed to fetch friends');
         
         const friendsData = await response.json();
-        
-        // Предполагаем, что API возвращает массив друзей
         setFriends(friendsData);
       } catch (error) {
         console.error('Friends load error:', error);
@@ -55,16 +68,23 @@ export default function Friends() {
               <div className={styles.settingPrimary}>
                 <a className={styles.settingPrimaryHelper}>YOUR FRIENDS</a>
                 
-                {/* Отображение списка друзей */}
                 {error ? (
                   <div className={styles.error}>{error}</div>
                 ) : friends.length > 0 ? (
                   friends.map(friend => (
                     <MenuItem 
-                      // key={friend.friend_id}
+                      key={friend.friend_id}
                       avatarSrc={friend.avatar || "/castle.jpg"}
                       nameFriend={friend.secondlogin || "No name"}
                       idFriend={friend.friend_id}
+                      onClick={() => {
+                        handleFriendClick({
+                          idFriend: friend.friend_id,
+                          nameFriend: friend.secondlogin,
+                          avatarSrc: friend.avatar || "/castle.jpg"
+                        });
+                        
+                      }}
                     />
                   ))
                 ) : (
@@ -76,7 +96,15 @@ export default function Friends() {
             </div>
           </div>
           <div className={styles.rightFriend}>
-            <FriendChat/>
+            {showChat && currentFriend && (
+              <FriendChat 
+                key={currentFriend.idFriend}
+                idFriend={currentFriend.idFriend}
+                nameFriend={currentFriend.nameFriend}
+                avatarSrc={currentFriend.avatarSrc}
+                onClose={() => setShowChat(false)}
+              />
+            )}
           </div>
         </div>
       </div>
