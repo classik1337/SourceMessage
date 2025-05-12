@@ -54,18 +54,38 @@ export async function GET(request) {
           )
        ORDER BY 
           m.sent_at DESC
-       LIMIT 20;`,
+       LIMIT 30;`,
       [myId, friendId, friendId, myId]  
     );
+
+ 
+    const lastMessageChat = messages.at(0)
+    const i = (lastMessageChat.id)
+
+
     
+    const [lastMessage] = await connection.execute(
+      `UPDATE messengerapp.chats
+      SET
+
+      last_message_id = ?
+      WHERE user1_id = ? and user2_id = ? 
+      or 
+      user2_id = ? and user1_id = ?
+      `,
+      [i, myId, friendId, friendId, myId]  
+    );
+
     if (messages.length === 0) {
       return NextResponse.json(
         { messages: [] },
         { status: 200 }
       );
     }
-    // console.log(messages)// работает
+  
+
     return NextResponse.json(
+      
       { messages },
       { status: 200 }
     );

@@ -3,13 +3,16 @@ import Image from "next/image"
 import styles from "./page.module.css"
 import { useState, useRef, useEffect } from "react";
 
-export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose }) {
+
+
+export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, chatId }) {
   const [profile, setProfile] = useState({ id: '', avatar: "", secondlogin: "", });
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
-
+  const socketRef = useRef(null);
+console.log(idFriend, nameFriend, avatarSrc, onClose, chatId)
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -71,9 +74,11 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose })
         setError('Не удалось загрузить сообщения');
       }
     };
-
+    
     fetchMessages();
   }, [profile.id, idFriend.idFriend]);
+
+
 
 
   useEffect(() => {
@@ -101,6 +106,11 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose })
     );
   }
 
+
+
+
+
+  
   const sendMessage = async () => {
     if (!messageText.trim()) return; // Не отправляем пустые сообщения
     
@@ -144,6 +154,61 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose })
   };
 
 
+// Функция для обновления статуса прочтения сообщений
+const markMessagesAsRead = async () => {
+  try {
+    // Получаем непрочитанные сообщения от друга
+    const unreadMessages = messages.filter(
+      msg => !msg.isMine && !msg.isRead
+    );
+
+    if (unreadMessages.length === 0) return;
+
+    // Подготавливаем данные для запроса
+    const messageIds = unreadMessages.map(msg => msg.id);
+    const requestData = {
+      chatId: chatId, // Должен быть получен из состояния
+      messageIds,
+      userId: profile.id
+    };
+
+    // Отправляем запрос на сервер
+    const response = await fetch('/api/chat/markAsRead', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка обновления статуса сообщений');
+    }
+
+    // Обновляем локальное состояние
+    setMessages(prev => prev.map(msg => 
+      messageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
+    ));
+
+  } catch (err) {
+    console.error('Ошибка при обновлении статуса прочтения:', err);
+  }
+};
+
+// Используем этот эффект для вызова функции при монтировании и изменении сообщений
+useEffect(() => {
+  if (messages.length > 0 && idFriend.idFriend) {
+    markMessagesAsRead();
+  }
+}, [messages, idFriend.idFriend]);
+
+
+
+  
+
+
+markMessagesAsRead();
   return (
     <div className={styles.rightFriendChat}>
       <div className={styles.userFriendChat}>

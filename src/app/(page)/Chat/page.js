@@ -1,71 +1,151 @@
-"use client"
 import Image from "next/image";
 import styles from "./page.module.css";
-import { useState, useEffect } from 'react';
-import Settingprofile from "../components/settings/setProfile/setProfile";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import FriendChat from "../components/friendChat/chat";
 
+const MessageItem = ({ 
+  avatarSrc = "/castle.jpg", 
+  nameFriend = "NameFriends",
+  idFriend = "#1",
+  timeMessage = "04:20",
+  contentMessage = "Hello, how are you?",
+  isActive = false,
+  onClick
+}) => (
+  <div 
+    className={`${styles.chatContainer} ${isActive ? styles.active : ''}`}
+    onClick={onClick}
+  >
+    <div className={styles.avatarContainer}>
+      <Image
+        className={styles.avatar}
+        aria-hidden
+        src={avatarSrc}
+        alt="Friend Avatar"
+        width={50}
+        height={50}
+      />
+    </div>
+    <div className={styles.messageContent}>
+      <div className={styles.messageHeader}>
+        <span className={styles.senderName}>{nameFriend}</span>
+        <span className={styles.messageTime}>{timeMessage}</span>
+      </div>
+      <div className={styles.messaheBottom}>
+        <div className={styles.lastMessage}>
+          {contentMessage}
+        </div>
+        <span className={styles.messageTime}>Read</span>
+      </div>
+    </div>
+  </div>
+);
 
+export default function Chat() {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isCompressed, setIsCompressed] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [currentFriend, setCurrentFriend] = useState(null);
+  const [currentChatId, setCurrentChatId] = useState(null);
 
+  // const handleContainerClick = () => {
+  //   setIsCompressed(!isCompressed);
+  // };
+  // При нажатии на блок чата 20%
+  const handleMessageClick = (message) => {
+    setIsCompressed(!isCompressed);
+    setCurrentFriend({
+      idFriend: message.idFriend,
+      nameFriend: message.nameFriend,
+      avatarSrc: message.avatarSrc
+    });
+    setShowChat(true);
+    setIsCompressed(true); // Устанавливаем флаг сжатия
+  };
 
-export default function Profile() {
-  const [showProfile, setShowProfile] = useState(false);
+  const handleCloseChat = () => {
+    setShowChat(false);
+    setCurrentFriend(null);
+    setIsCompressed(false);
+  };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('/api/chat/chatChecker', {
+          credentials: 'include' // Отправляем куки с запросом
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch messages');
+        }
+  
+        const data = await response.json();
+        setMessages(data.messages || []);
+      } catch (err) {
+        console.error('Error fetching messages:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchMessages();
+  }, []);
+
+ 
+
+  if (loading) {
+    return <div className={styles.loading}>Loading messages...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.error}>Error: {error}</div>;
+  }
+
 
   return (
     <div className={styles.main_Container}>
       <div className={styles.mainFrame}>
-        <div className={styles.profilePage}>
-         <div className={styles.leftProfile}>
-         <div className={styles.settingProfile}>
-         <div className={styles.settingPrimary}>
-  {/* Раздел "Аккаунт" */}
-  <a className={styles.settingPrimaryHelper}>ACCOUNT SETTINGS</a>
-  <div className={styles.menuSetting}>
-    <a className={styles.primary} onClick={() => setShowProfile(!showProfile)}><span>Profile Information</span></a>
-    <a className={styles.primary}><span>Contact Details</span></a>
-    <a className={styles.primary}><span>Social Connections</span></a>
-    <a className={styles.primary}><span>Account Preferences</span></a>
-  </div>
-  
-  <div className={styles.divider} />
-  
-  {/* Раздел "Безопасность" */}
-  <a className={styles.settingPrimaryHelper}>SECURITY</a>
-  <div className={styles.menuSetting}>
-    <a className={styles.primary}><span>Password & Authentication</span></a>
-    <a className={styles.primary}><span>Two-Factor Auth</span></a>
-    <a className={styles.primary}><span>Connected Devices</span></a>
-    <a className={styles.primary}><span>Login History</span></a>
-  </div>
-  
-  <div className={styles.divider} />
-  
-  {/* Раздел "Внешний вид" */}
-  <a className={styles.settingPrimaryHelper}>APPEARANCE</a>
-  <div className={styles.menuSetting}>
-    <a className={styles.primary}><span>Theme & Colors</span></a>
-    <a className={styles.primary}><span>Font Size</span></a>
-    <a className={styles.primary}><span>Display Options</span></a>
-    <a className={styles.primary}><span>Language</span></a>
-  </div>
-  
-  <div className={styles.divider} />
-  
-  {/* Раздел "Уведомления" */}
-  <a className={styles.settingPrimaryHelper}>NOTIFICATIONS</a>
-  <div className={styles.menuSetting}>
-    <a className={styles.primary}><span>Email Notifications</span></a>
-    <a className={styles.primary}><span>Push Notifications</span></a>
-    <a className={styles.primary}><span>Sound Alerts</span></a>
-    <a className={styles.primary}><span>Do Not Disturb</span></a>
-  </div>
-</div>
+      <div className={`${styles.mainFrameChatContainer} ${isCompressed ? styles.compressed : ''}`}>
+          <div className={styles.newChatContainer}>
+          <span href="#"className={styles.chatText}>Начать новый чат с друзьми +</span>
+          </div>
+          {messages.length > 0 ? (
+            messages.map(message => (
+              <MessageItem
+                key={message.idFriend}
+                avatarSrc={message.avatarSrc}
+                nameFriend={message.nameFriend}
+                idFriend={message.idFriend}
+                timeMessage={message.timeMessage}
+                contentMessage={message.contentMessage}
+                isActive={isCompressed}
+                onClick={() => {
+                  handleMessageClick(message);
+                  setCurrentChatId(message.chatId); // Сохраняем chatId при клике
+                }}
+              />
+            ))
+          ) : (
+            <div className={styles.noMessages}>No messages found</div>
+          )}
+        
         </div>
-         </div>
-         <div className={styles.rightProfile}>
-         {showProfile && <Settingprofile />}
-          
-         </div>
-        </div>
+        {showChat && currentFriend && (
+            <FriendChat 
+              key={currentFriend.idFriend}
+              idFriend={currentFriend.idFriend}
+              nameFriend={currentFriend.nameFriend}
+              avatarSrc={currentFriend.avatarSrc}
+              onClose={handleCloseChat}
+              chatId={currentChatId}
+            />
+        )}
       </div>
     </div>
-  )};
+  );
+}

@@ -1,28 +1,3 @@
-.page {
-  --gray-rgb: 0, 0, 0;
-  --gray-alpha-200: rgba(var(--gray-rgb), .08);
-  --gray-alpha-100: rgba(var(--gray-rgb), .05);
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  display: flex;
-  grid-template-rows: 20px 1fr 20px;
-  min-height: 100svh;
-  font-family: var(--font-geist-sans);
-  justify-content: center;
-  align-items: center;
-}
-
-@media (prefers-color-scheme: dark) {
-  .page {
-    --gray-rgb: 255, 255, 255;
-    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-  }
-}
-
 .main_Container {
   grid-area: 1 / 2 / 2 / 3; /* Пример: занимает свою ячейку полностью */
   width: 100%;
@@ -31,169 +6,162 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 
 .mainFrame {
- width:100%;
- height: 100%;
- display: flex;
- flex-wrap: row
-}
-
-.profilePage {
-  display: flex;
-  grid-area: 1 / 2 / 2 / 3;
-  overflow: hidden; /* Отключаем скролл всей страницы */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.leftProfile {
-width: 25vw;
-height: 100%;
-border-right: solid 1px var(--foreground);
-}
-
-.settingProfile {
-  height: 100%; 
-  min-width: none;
-  overflow-y: scroll; 
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.settingPrimary {
-  display: flex;
-  align-items: flex-start;
   width: 100%;
-  flex-direction: column;
-  justify-content: center;
-  
-} 
-
-.settingPrimaryHelper {
-  margin-left: 2vw;
-  margin-top: 2vh;
-  color: var(--foreground);
-  font-size: 12px;
-  line-height: 20px;
-  font-weight: 400;
-  text-decoration: none; 
+  height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: row;
+  /* overflow: hidden; */
+ 
 }
 
-.menuSetting {
-  width: 90%;
+.mainFrameChatContainer {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  transition: width 0.5s ease;
+  border-right: 1px solid var(--foreground);
+  
 }
 
-.menuSetting a {
-  appearance: none;
-  height: 5vh;
-  gap: 1vh;
-  cursor: pointer;
+.mainFrameChatContainer.compressed {
+  width: 16vw;
+}
+
+
+.chatContainer {
+  width: 100%;
+  transition: all 0.3s ease;
+  min-height: 8vh;
+  border-bottom: 1px solid var(--foreground);
+  padding: 12px;
   display: flex;
   align-items: center;
-  padding: 0 2vw; /* Начальные отступы */
-  margin: 0 1vw; /* Начальный отступ по бокам */
-  width: calc(100% - 2vw); /* Учитываем margin */
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
-  box-sizing: border-box;
 }
-
-
-
-a.primary {
-  margin-left: 2vw;
-  margin-top: 2vh;
-  border-color: var(--gray-alpha-200);
-  color: var(--foreground);
-}
-
-a.primary:hover {
-  background-color: var(--gray-alpha-200);
-}
-
-.divider {
-  height: 1px;
-  width: 100%;
-  background: var(--gray-alpha-200);
-  margin: 16px 0;
-}
-
-.rightProfile {
-  width: 55vw;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.overviewText {
-  margin-top: 2vh;
-  font-size: 24px;
-  color: var(--foreground);
-}
-
-.userProfileTest {
-  margin-top: 3vh;
-  width: 25vw;
-  height: 80%;
-  background-color: var(--background);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  box-shadow: 0 2px 4px #0000001a;
-  justify-content: flex-start;
-}
-
-.headProfile {
+.newChatContainer {
   position: relative;
   display: flex;
+  flex-direction: row;
   width: 100%;
-  height: 15%;
-  background-color: #383838;
-  border-top-left-radius: 8px; /* Скругленные углы */
-  border-top-right-radius: 8px; /* Скругленные углы */
+  height: 5vh;
+
+  align-items: center;
+  justify-content: space-between;
+ 
+}
+
+.newChatContainer:hover {
+  background-color: var(--background-hover);
+  transform: translateY(-1px);
+}
+
+.chatText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px; 
+}
+
+
+.chatContainer:hover {
+  background-color: var(--background-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chatContainer:active {
+  transform: translateY(0);
+}
+
+.chatContainer::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.2s ease;
+}
+
+.chatContainer:hover::after {
+  transform: scaleY(1);
+}
+
+.chatContainer.unread {
+  border-left: 3px solid var(--accent);
+}
+
+.chatContainer.unread .messagePreview {
+  font-weight: 600;
+}
+
+.chatContainer.unread .messageTime {
+  color: var(--accent);
+}
+
+.avatarContainer {
+  flex-shrink: 0;
 }
 
 .avatar {
-  margin-left: 1vw;
-  margin-top: 3%;
-  position: absolute;
-  z-index: 1;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%; /* Круглая аватарка */
-  background-color: #ddd; /* Заглушка для аватарки */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.messageContent {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.senderName {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.messageTime {
+  font-size: 0.75em;
+  color: var(--foreground-secondary);
+}
+
+.messaheBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   
 }
 
-.infoProfile {
-  margin-top: 5vh;
-}
-
-.username {
-  margin: 10px 0 0 1vw;
-  font-size: 1.2rem;
+.lastMessage {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--foreground);
-  font-weight: 500;
 }
-
-.description {
-  margin: 10px 0 0 1vw;
-  font-size: 0.9rem;
-  color: var(--foreground);
-  text-align: center;
-  line-height: 1.4;
-}
-

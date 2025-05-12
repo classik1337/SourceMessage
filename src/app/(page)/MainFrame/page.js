@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import Profile from "../Profile/page";
 import Friends from "../Friends/page";
+import Chat from "../Chat/page";
 import { useRouter } from 'next/navigation'; 
 import { useState } from 'react';
 
@@ -11,14 +12,23 @@ import { useState } from 'react';
 export default function MainFrame() {
   const [openProfile, setOpenProfile] = useState(false); // profile
   const [openFriends, setOpenFriends] = useState(false); // friends
+  const [openChats, setOpenChat] = useState(false); // chat
   const handleOpenProfile = () => {
     setOpenProfile(true);
+    setOpenChat(false);
     setOpenFriends(false); // Закрываем друзей при открытии профиля
   };
   
   const handleOpenFriends = () => {
     setOpenFriends(true);
+    setOpenChat(false);
     setOpenProfile(false); // Закрываем профиль при открытии друзей
+  };
+  const handleOpenChats = () => {
+    setOpenChat(true);
+    setOpenFriends(false);
+    setOpenProfile(false); 
+    
   };
   const router = useRouter();
 
@@ -59,6 +69,7 @@ export default function MainFrame() {
           <a
             className={styles.primary}
             href="#" //src to link chat
+            onClick={handleOpenChats}
           >
            
             Chat
@@ -66,6 +77,7 @@ export default function MainFrame() {
           <a
             href="#"
             className={styles.primary}
+            
           >
             Server
           </a>
@@ -103,6 +115,7 @@ export default function MainFrame() {
             <div className={styles.main_right_container}>
                {openProfile && <Profile/>}
                {openFriends && <Friends/>}
+               {openChats && <Chat/>}
               
             </div>
           </div>
