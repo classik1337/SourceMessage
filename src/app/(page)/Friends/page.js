@@ -2,6 +2,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
 import FriendChat from "../components/friendChat/chat";
+import FriendList from "../components/friendsList/page";
 
 export default function Friends() {
   const [friends, setFriends] = useState([]);
@@ -13,34 +14,6 @@ export default function Friends() {
     setCurrentFriend(friendData);
     setShowChat(true);
   };
-
-  const MenuItem = ({ 
-    avatarSrc = "/castle.jpg", 
-    nameFriend = "NameFriends",
-    idFriend = "#1",
-    onClick
-  }) => (
-    <div className={styles.menuItem}>
-      <Image
-        className={styles.avatar}
-        src={avatarSrc}
-        alt={"userAvatar"}
-        width={30}
-        height={30}
-        priority
-      />
-      <a 
-        className={styles.menuText} 
-        onClick={(e) => {
-          e.preventDefault();
-          onClick();
-        }} 
-        href={`#${idFriend}`}
-      >
-        {nameFriend}
-      </a>
-    </div>
-  );
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -72,20 +45,30 @@ export default function Friends() {
                   <div className={styles.error}>{error}</div>
                 ) : friends.length > 0 ? (
                   friends.map(friend => (
-                    <MenuItem 
-                      key={friend.friend_id}
-                      avatarSrc={friend.avatar || "/castle.jpg"}
-                      nameFriend={friend.secondlogin || "No name"}
-                      idFriend={friend.friend_id}
-                      onClick={() => {
-                        handleFriendClick({
-                          idFriend: friend.friend_id,
-                          nameFriend: friend.secondlogin,
-                          avatarSrc: friend.avatar || "/castle.jpg"
-                        });
-                        
-                      }}
-                    />
+                    <div className={styles.menuItem} key={friend.friend_id}>
+                      <Image
+                        className={styles.avatar}
+                        src={friend.avatar || "/castle.jpg"}
+                        alt={"userAvatar"}
+                        width={30}
+                        height={30}
+                        priority
+                      />
+                      <a 
+                        className={styles.menuText} 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleFriendClick({
+                            idFriend: friend.friend_id,
+                            nameFriend: friend.secondlogin,
+                            avatarSrc: friend.avatar || "/castle.jpg"
+                          });
+                        }} 
+                        href={`#${friend.friend_id}`}
+                      >
+                        {friend.secondlogin || "No name"}
+                      </a>
+                    </div>
                   ))
                 ) : (
                   <div>No friends found</div>
@@ -96,13 +79,18 @@ export default function Friends() {
             </div>
           </div>
           <div className={styles.rightFriend}>
-            {showChat && currentFriend && (
+            {showChat && currentFriend ? (
               <FriendChat 
                 key={currentFriend.idFriend}
                 idFriend={currentFriend.idFriend}
                 nameFriend={currentFriend.nameFriend}
                 avatarSrc={currentFriend.avatarSrc}
                 onClose={() => setShowChat(false)}
+              />
+            ) : (
+              <FriendList 
+                friends={friends} 
+                onFriendClick={handleFriendClick} 
               />
             )}
           </div>

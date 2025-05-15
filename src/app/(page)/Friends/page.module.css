@@ -85,3 +85,17 @@
   align-items: center;
   flex-direction: column;
 }
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background: var(--background);
+}
+
+.rightSection {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}

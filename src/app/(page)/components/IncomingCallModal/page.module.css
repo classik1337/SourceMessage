@@ -1,0 +1,135 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modalOverlay.visible {
+  opacity: 1;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  width: 320px;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modalContent.visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.callerInfo {
+  margin-bottom: 2rem;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1rem;
+}
+
+.callerAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4CAF50;
+  animation: pulse 2s infinite;
+}
+
+.callType {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #4CAF50;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.callerName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.callTypeText {
+  font-size: 1rem;
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.timer {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0.5rem 0;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.callButton {
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.callButton span {
+  margin-left: 0.5rem;
+}
+
+.acceptButton {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.acceptButton:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.rejectButton {
+  background-color: #f44336;
+  color: white;
+}
+
+.rejectButton:hover {
+  background-color: #da190b;
+  transform: scale(1.05);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

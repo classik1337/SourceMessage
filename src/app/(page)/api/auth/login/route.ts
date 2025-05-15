@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import { Server } from 'socket.io'; // Добавлен импорт Socket.IO
 
 // Конфигурация базы данных
 const dbConfig = {
@@ -18,6 +19,18 @@ const dbConfig = {
 
 // Создание пула соединений
 const pool = mysql.createPool(dbConfig);
+
+// Инициализация Socket.IO сервера (выносим за пределы функции)
+// Комментарий: Создаем HTTP сервер для Socket.IO
+// const httpServer = require('http').createServer();
+// const io = new Server(httpServer, {
+//   cors: {
+//     origin: "*", // Настройте правильно для production
+//   },
+// });
+
+// // Хранилище подключений пользователей
+// const userSockets = new Map();
 
 export async function POST(request: Request) {
   let connection;
@@ -50,6 +63,7 @@ export async function POST(request: Request) {
 
     const user = rows[0];
     console.log(user.login, user.role, user.id);
+    
     // Сравнение хешированного пароля
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -64,30 +78,48 @@ export async function POST(request: Request) {
     const token = jwt.sign(
       { 
         email: user.email,
-        id: user.id,     // ID пользователя из БД
-        login: user.username,    // Логин пользователя
-        role: user.role      // Роль пользователя
+        id: user.id,
+        login: user.username,
+        role: user.role
       },
       process.env.JWT_SECRET!,
       { expiresIn: '1h' }
     );
 
+    // Комментарий: Здесь можно инициировать подключение к Socket.IO
+    // Но в API-роуте это не рекомендуется, лучше делать на клиенте
+    // Вместо этого добавляем флаг, что пользователь может подключиться
+    // const socketData = {
+    //   userId: user.id,
+    //   token: token,
+    //   status: 'authenticated'
+    // };
+
     // Успешный вход
     const response = NextResponse.json(
       {
         message: 'Пользователь успешно зашел',
-        user: { id: user.idUsers, login: user.Login, role: user.Role, email: user.Email },
-        
+        user: { 
+          id: user.idUsers, 
+          login: user.Login, 
+          role: user.Role, 
+          email: user.Email 
+        },
+        socket: { // Добавляем данные для подключения к сокету
+          server: process.env.SOCKET_SERVER_URL || 'http://localhost:3001',
+          token: token
+        }
       },
       { status: 200 }
     );
 
     response.cookies.set('token', token, {
-      httpOnly: true, // Защита от XSS
-      secure: process.env.NODE_ENV === 'production', // Только HTTPS в production
-      maxAge: 3600, // Время жизни куки (1 час)
-      sameSite: 'strict', // Защита от CSRF
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 3600,
+      sameSite: 'strict',
     });
+
     return response;
 
   } catch (error) {
@@ -99,7 +131,67 @@ export async function POST(request: Request) {
   } finally {
     if (connection) {
       connection.release();
-      
     }
   }
 }
+
+// Комментарий: Обработчики Socket.IO (добавляются отдельно)
+// io.on('connection', (socket) => {
+//   console.log('Новое подключение:', socket.id);
+
+//   // Обработчик аутентификации через JWT
+//   socket.on('authenticate', (token) => {
+//     try {
+//       // Верифицируем токен
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+//         id: string;
+//         email: string;
+//       };
+
+//       // Проверяем, есть ли уже подключение для этого пользователя
+//       if (userSockets.has(decoded.id)) {
+//         const oldSocket = userSockets.get(decoded.id);
+//         // Закрываем старое подключение, если оно существует
+//         if (oldSocket && oldSocket.connected) {
+//           oldSocket.disconnect();
+//         }
+//       }
+
+//       // Сохраняем новое подключение
+//       userSockets.set(decoded.id, socket);
+//       console.log(`Пользователь ${decoded.id} (${decoded.email}) аутентифицирован`);
+
+//       // Отправляем подтверждение клиенту
+//       socket.emit('authentication_success', {
+//         userId: decoded.id,
+//         message: 'Аутентификация прошла успешно'
+//       });
+
+//       // Привязываем ID пользователя к сокету для удобства
+//       socket.data.userId = decoded.id;
+
+//     } catch (err) {
+//       console.error('Ошибка аутентификации:', err.message);
+      
+//       // Отправляем сообщение об ошибке клиенту
+//       socket.emit('authentication_error', {
+//         message: 'Неверный токен аутентификации'
+//       });
+      
+//       // Закрываем соединение при ошибке аутентификации
+//       socket.disconnect();
+//     }
+//   });
+
+//   // Обработчик отключения
+//   socket.on('disconnect', () => {
+//     // Удаляем только если это тот же сокет, что сохранен в мапе
+//     if (socket.data.userId) {
+//       const storedSocket = userSockets.get(socket.data.userId);
+//       if (storedSocket && storedSocket.id === socket.id) {
+//         userSockets.delete(socket.data.userId);
+//         console.log(`Пользователь ${socket.data.userId} отключен`);
+//       }
+//     }
+//   });
+// });

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Image from "next/image";
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation'; 
+import { io } from 'socket.io-client';
 
 export default function Registration() {
   const router = useRouter();
@@ -74,12 +75,19 @@ export default function Registration() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        // Сохраняем токен и данные пользователя
+      
+        
+        // Перенаправляем на главную страницу
         router.push('/MainFrame');
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Authentication failed');
       }
     } catch (err) {
+
       setError('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);

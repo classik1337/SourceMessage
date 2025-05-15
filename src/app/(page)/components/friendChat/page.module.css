@@ -75,7 +75,15 @@
 .mainChat {
   width: 62vw;
   height: 95%;
-  /* background-color: var(--background); */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mainChatContiner {
+  width: 62vw;
+  height: 95%;
+  
   border-radius: 8px;
   box-shadow: 0 2px 4px #0000001a;
   justify-content: flex-start;
@@ -86,8 +94,6 @@
   overflow-y: scroll;
   scrollbar-width: none; /* Скрыть по умолчанию */
 }
-
-
 
 .message {
   max-width: 70%;
@@ -211,4 +217,77 @@
   display: block;
   width: 3px;
   scrollbar-width: thin;
+}
+/* ---------------------------------------------------- */
+.mainChatContiner .callActive {
+  display: grid;
+  grid-template-rows: 1fr 1fr; /* Две равные части */
+  gap: 8px;
+}
+/* Стили для режима звонка */
+
+
+.callContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.callVideoContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.videoPlaceholder {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #333;
+}
+
+.videoAvatar {
+  object-fit: cover;
+}
+
+.callControls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.callButton {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ff5c5c;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.callButton:hover {
+  background-color: #ff3a3a;
+}
+
+/* Анимация появления/исчезания */
+.headFriendChat, .bottomFriendChat {
+  transition: opacity 0.3s ease;
+}
+
+.callActive .headFriendChat,
+.callActive .bottomFriendChat {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
 }

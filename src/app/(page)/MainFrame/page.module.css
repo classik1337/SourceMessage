@@ -11,11 +11,12 @@
   justify-content: center;
   align-items: center;
   background-image: 
-  linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
-  url('/background.jpg');
-  background-size: cover; /* Растягивает изображение на весь экран */
-  background-position: center; /* Центрирует картинку */
-  background-repeat: no-repeat; /* Запрещает повторение */
+    linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
+    url('/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,17 +24,14 @@
     --gray-rgb: 255, 255, 255;
     --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
     --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
     --button-primary-hover: #ccc;
     --button-secondary-hover: #1a1a1a;
   }
 }
 
-
 .main {
   display: flex;
   flex-direction: row;
-  
 }
 
 .main ol {
@@ -128,7 +126,6 @@
   
 }
 
-
 /* Стили для меню профиля */
 .profile_menu {
   position: relative;
@@ -137,29 +134,36 @@
 .profile_button {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 20px;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 
 .profile_button:hover {
-  background: #f5f5f5;
+  background-color: var(--gray-alpha-200);
+  transform: translateY(-1px);
 }
 
 .profile_avatar {
-  width: 32px;
-  height: 32px;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--gray-alpha-200);
 }
 
 .profile_name {
   font-size: 14px;
   font-weight: 500;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .dropdown_icon {
@@ -227,8 +231,8 @@
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
-  text-decoration: none; 
-  transition: background-color 0.3s ease,  color 0.3s ease; 
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 a.primary {
@@ -239,6 +243,8 @@ a.primary {
 
 a.primary:hover {
   background-color: var(--gray-alpha-200);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* a.secondary {
