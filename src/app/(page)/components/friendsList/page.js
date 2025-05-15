@@ -1,26 +1,83 @@
 "use client"
 import Image from "next/image";
 import styles from "./page.module.css";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSocket } from "../context/SocketContext/SocketContext";
+import AddFriendModal from "../addFriendModal/AddFriendModal";
+
+const tabs = [
+  { id: 'friends', label: 'Друзья' },
+  { id: 'online', label: 'В сети' },
+  { id: 'all', label: 'Все' }
+];
 
 export default function FriendList({ friends, onFriendClick }) {
   const [activeTab, setActiveTab] = useState('online');
   const [searchQuery, setSearchQuery] = useState('');
+  const [onlineStatus, setOnlineStatus] = useState({});
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const socket = useSocket();
 
-  const tabs = [
-    { id: 'friends', label: 'Друзья' },
-    { id: 'online', label: 'В сети' },
-    { id: 'all', label: 'Все' }
-  ];
-
-  const filteredFriends = friends.filter(friend => {
-    const matchesSearch = friend.secondlogin?.toLowerCase().includes(searchQuery.toLowerCase());
-    if (activeTab === 'online') {
-      return matchesSearch && friend.status === 'online';
+  useEffect(() => {
+    if (!socket) {
+      return;
     }
-    return matchesSearch;
+
+    // Обработчик обновления статуса
+    const handleStatusUpdate = (statuses) => {
+      setOnlineStatus(prev => statuses);
+    };
+
+    // Подписываемся на обновления статуса
+    socket.on('online-status-update', handleStatusUpdate);
+
+    // Запрашиваем начальные статусы
+    socket.emit('get-connection-info', { targetUserId: friends[0]?.friend_id }, (response) => {
+      if (response?.allConnections) {
+        const newStatuses = {};
+        response.allConnections.forEach(conn => {
+          // Проверяем и статус, и наличие активного сокета
+          newStatuses[conn.userId] = conn.status === 'online' && Boolean(conn.socketId);
+        });
+        setOnlineStatus(newStatuses);
+      }
+    });
+
+    return () => {
+      socket.off('online-status-update', handleStatusUpdate);
+    };
+  }, [socket, friends]);
+
+  // Обогащаем друзей информацией об онлайн-статусе
+  const enrichedFriends = friends.map(friend => {
+    const isOnline = Boolean(onlineStatus[friend.friend_id]);
+    return {
+      ...friend,
+      isOnline
+    };
   });
 
+  // Фильтрация друзей
+  const filteredFriends = enrichedFriends.filter(friend => {
+    const matchesSearch = friend.secondlogin?.toLowerCase().includes(searchQuery.toLowerCase());
+    if (activeTab === 'online') {
+      return matchesSearch && friend.isOnline;
+    } else if (activeTab === 'all') {
+      return matchesSearch;
+    }
+    return false;
+  });
+
+  // Сортируем друзей: сначала онлайн, потом оффлайн
+  const sortedFriends = [...filteredFriends].sort((a, b) => {
+    if (a.isOnline === b.isOnline) {
+      return a.secondlogin?.localeCompare(b.secondlogin) || 0;
+    }
+    return a.isOnline ? -1 : 1;
+  });
+
+  // Обработчик клика по сообщению
   const handleMessageClick = (e, friend) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,6 +87,25 @@ export default function FriendList({ friends, onFriendClick }) {
       avatarSrc: friend.avatar || "/castle.jpg"
     });
   };
+
+  // Обработчик клика по трем точкам
+  const handleMoreClick = (e, friendId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === friendId ? null : friendId);
+  };
+
+  // Закрытие дропдауна при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(`.${styles.actionButton}`) && !event.target.closest(`.${styles.dropdownMenu}`)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <div className={styles.rightFriendChat}>
@@ -54,7 +130,10 @@ export default function FriendList({ friends, onFriendClick }) {
                       );
                     })}
                   </div>
-                  <button className={styles.addFriendButton}>
+                  <button 
+                    className={styles.addFriendButton}
+                    onClick={() => setShowAddFriendModal(true)}
+                  >
                     Добавить в друзья
                   </button>
                 </div>
@@ -62,7 +141,7 @@ export default function FriendList({ friends, onFriendClick }) {
                 <div className={styles.searchContainer}>
                   <input
                     type="text"
-                    placeholder="Поиск"
+                    placeholder="Поиск по нику"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
@@ -70,12 +149,12 @@ export default function FriendList({ friends, onFriendClick }) {
                 </div>
 
                 <div className={styles.settingPrimaryHelper}>
-                  В сети — {filteredFriends.filter(f => f.status === 'online').length}
+                  В сети — {enrichedFriends.filter(f => f.isOnline).length}
                 </div>
                 
-                <div className={styles.friendsList}>
-                  {filteredFriends.length > 0 ? (
-                    filteredFriends.map(friend => (
+                <div className={styles.friendsListWrapper}>
+                  <div className={styles.friendsList}>
+                    {sortedFriends.map(friend => (
                       <div 
                         className={styles.menuItem} 
                         key={friend.friend_id}
@@ -89,12 +168,12 @@ export default function FriendList({ friends, onFriendClick }) {
                           <Image
                             className={styles.avatar}
                             src={friend.avatar || "/castle.jpg"}
-                            alt={"userAvatar"}
+                            alt="userAvatar"
                             width={48}
                             height={48}
                             priority
                           />
-                          <div className={`${styles.statusIndicator} ${styles[friend.status || 'offline']}`} />
+                          <div className={`${styles.statusIndicator} ${friend.isOnline ? styles.online : styles.offline}`} />
                         </div>
                         <span className={styles.menuText}>
                           {friend.secondlogin || "No name"}
@@ -111,26 +190,63 @@ export default function FriendList({ friends, onFriendClick }) {
                               height={24}
                             />
                           </button>
-                          <button className={styles.actionButton}>
-                            <Image
-                              src="/more-icon.svg"
-                              alt="More"
-                              width={24}
-                              height={24}
-                            />
-                          </button>
+                          <div className={styles.dropdownContainer}>
+                            <button 
+                              className={styles.actionButton}
+                              onClick={(e) => handleMoreClick(e, friend.friend_id)}
+                            >
+                              <Image
+                                src="/more-icon.svg"
+                                alt="More"
+                                width={24}
+                                height={24}
+                              />
+                            </button>
+                            {activeDropdown === friend.friend_id && (
+                              <div className={styles.dropdownMenu}>
+                                <button className={styles.dropdownItem}>
+                                  <Image
+                                    src="/video-call-icon.svg"
+                                    alt="Video Call"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  Начать видеозвонок
+                                </button>
+                                <button className={styles.dropdownItem}>
+                                  <Image
+                                    src="/voice-call-icon.svg"
+                                    alt="Voice Call"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  Начать голосовой звонок
+                                </button>
+                                <button className={`${styles.dropdownItem} ${styles.dangerItem}`}>
+                                  <Image
+                                    src="/remove-friend-icon.svg"
+                                    alt="Remove Friend"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  Удалить из друзей
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div>Друзей не найдено</div>
-                  )}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {showAddFriendModal && (
+        <AddFriendModal onClose={() => setShowAddFriendModal(false)} />
+      )}
     </div>
   );
 }

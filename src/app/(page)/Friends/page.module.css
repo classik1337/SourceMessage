@@ -20,7 +20,7 @@
 }
 
 .leftFriends {
-  width: 18vw;
+  width: 0vw;
   height: 100%;
   border-right: solid 1px var(--foreground);
 }
@@ -79,7 +79,7 @@
 }
 
 .rightFriend {
-  width: 64vw;
+  width: 80vw;
   height: 100%;
   display: flex;
   align-items: center;

@@ -1,0 +1,157 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: #36393f;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h2 {
+  color: #fff;
+  margin: 0;
+  font-size: 20px;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #fff;
+}
+
+.closeButton:hover {
+  opacity: 0.8;
+}
+
+.searchContainer {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #202225;
+  background-color: #40444b;
+  color: #fff;
+  font-size: 14px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #5865f2;
+}
+
+.searchButton {
+  padding: 10px 20px;
+  background-color: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #4752c4;
+}
+
+.searchButton:disabled {
+  background-color: #72767d;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ed4245;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.userItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #2f3136;
+  border-radius: 4px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userAvatar {
+  border-radius: 50%;
+}
+
+.userName {
+  color: #fff;
+  font-size: 14px;
+}
+
+.addButton {
+  padding: 8px 16px;
+  background-color: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #4752c4;
+}
+
+.addButton.added {
+  background-color: #43b581;
+  cursor: default;
+}
+
+.addButton:disabled {
+  background-color: #43b581;
+  cursor: default;
+}
+
+.noResults {
+  color: #72767d;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+} 

@@ -1,7 +1,7 @@
 .rightFriendChat {
-  width: 62vw;
+  width: 80vw;
   height: 100vh;
-  background: var(--background);
+
   color: var(--foreground);
   display: flex;
   flex-direction: column;

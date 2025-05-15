@@ -11,8 +11,8 @@
   justify-content: center;
   align-items: center;
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
-    url('/background.jpg');
+  linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
+  url('/background.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -231,7 +231,7 @@
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
-  text-decoration: none;
+  text-decoration: none; 
   transition: all 0.3s ease;
 }
 

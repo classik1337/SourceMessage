@@ -36,7 +36,7 @@ export default function Friends() {
     <div className={styles.main_Container}>
       <div className={styles.mainFrame}>
         <div className={styles.friendsPage}>
-          <div className={styles.leftFriends}>
+          {/* <div className={styles.leftFriends}>
             <div className={styles.settingFriends}>
               <div className={styles.settingPrimary}>
                 <a className={styles.settingPrimaryHelper}>YOUR FRIENDS</a>
@@ -77,7 +77,7 @@ export default function Friends() {
                 <div className={styles.divider} />
               </div>
             </div>
-          </div>
+          </div> */}
           <div className={styles.rightFriend}>
             {showChat && currentFriend ? (
               <FriendChat 

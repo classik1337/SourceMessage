@@ -1,6 +1,7 @@
 
 
 .rightFriendChat {
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -8,9 +9,8 @@
 }
  
 .userFriendChat {
-  width: 62vw;
+  width: 100%;
   height: 100%;
-  /* background-color: var(--background); */
   border-radius: 8px;
   box-shadow: 0 2px 4px #0000001a;
   justify-content: flex-start;
@@ -73,26 +73,26 @@
 
 
 .mainChat {
-  width: 62vw;
+  width: 100%;
   height: 95%;
-  display: flex;
+  display: grid;
   flex-direction: column;
   overflow: hidden;
+  
+  
 }
 
 .mainChatContiner {
-  width: 62vw;
+   width: 100%;
   height: 95%;
   
   border-radius: 8px;
-  box-shadow: 0 2px 4px #0000001a;
   justify-content: flex-start;
-  min-width: none;
+
   display: flex;
   align-items: center;
   flex-direction: column;
   overflow-y: scroll;
-  scrollbar-width: none; /* Скрыть по умолчанию */
 }
 
 .message {
@@ -279,12 +279,11 @@
 }
 
 /* Анимация появления/исчезания */
-.headFriendChat, .bottomFriendChat {
+.headFriendChat {
   transition: opacity 0.3s ease;
 }
 
-.callActive .headFriendChat,
-.callActive .bottomFriendChat {
+.callActive .headFriendChat{ 
   opacity: 0;
   height: 0;
   overflow: hidden;

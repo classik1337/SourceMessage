@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import CallFriend from "../callFriend/CallFriend";
 import { useSocket } from '../context/SocketContext/SocketContext';
 import { useCall } from '../context/CallContext/CallContext';
+import FriendInfoModal from '../FriendInfoModal/FriendInfoModal';
 
 export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, chatId }) {
   // Состояния
@@ -15,6 +16,7 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
   const [messageText, setMessageText] = useState('');
   const [isCallActive, setIsCallActive] = useState(false);
   const [callType, setCallType] = useState(null);
+  const [showFriendInfo, setShowFriendInfo] = useState(false);
   
   const socket = useSocket();
   const { activeCall, setActiveCall } = useCall();
@@ -60,9 +62,10 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
         
         const data = await response.json();
         
-        if (!data.messages) throw new Error('Некорректный формат ответа от сервера');
+        // Проверяем наличие сообщений, если их нет - устанавливаем пустой массив
+        const messages = data.messages || [];
 
-        const formattedMessages = data.messages.map(msg => ({
+        const formattedMessages = messages.map(msg => ({
           id: msg.id,
           text: msg.content,
           time: new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -74,7 +77,8 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
         setMessages(formattedMessages);
       } catch (err) {
         console.error('Ошибка:', err);
-        setError('Не удалось загрузить сообщения');
+        // В случае ошибки устанавливаем пустой массив сообщений вместо показа ошибки
+        setMessages([]);
       }
     };
     
@@ -110,6 +114,7 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
         isRead: false
       };
       
+      // Добавляем сообщение в начало массива
       setMessages(prev => [tempMessage, ...prev]);
       setMessageText('');
       
@@ -122,13 +127,33 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
         body: JSON.stringify({
           content: messageText,
           senderId: profile.id,
-          receiverId: idFriend
+          receiverId: idFriend,
+          chatId: chatId // Добавляем chatId если он есть
         })
       });
 
-      if (!response.ok) throw new Error('Ошибка отправки');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ошибка отправки');
+      }
+
+      // Получаем обновленные данные от сервера
+      const data = await response.json();
+      
+      // Обновляем сообщение с данными с сервера
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempMessage.id 
+          ? {
+              ...msg,
+              id: data.messageId, // Используем ID с сервера
+              chatId: data.chatId // Обновляем chatId
+            }
+          : msg
+      ));
+
     } catch (error) {
       console.error('Ошибка отправки:', error);
+      // Удаляем временное сообщение в случае ошибки
       setMessages(prev => prev.filter(msg => msg.id !== tempMessage?.id));
       if (tempMessage) setMessageText(tempMessage.text);
     }
@@ -140,6 +165,10 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
       if (unreadMessages.length === 0) return;
 
       const messageIds = unreadMessages.map(msg => msg.id);
+      
+      // Проверяем наличие chatId
+      if (!chatId) return;
+
       const response = await fetch('/api/chat/markAsRead', {
         method: 'PUT',
         headers: { 
@@ -265,145 +294,155 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
   };
   
   return (
-    <div className={styles.rightFriendChat}>
-      {!isCallActive && (
-        <div className={styles.headFriendChat}>
-          <div className={styles.infoFriend}>
-            <div className={styles.avatarFriendContiner}>
-              <Image
-                className={styles.avatarFriend}
-                src={avatarSrc}
-                alt="Аватар"
-                width={30}
-                height={30}
-                priority
-              />
+    <>
+      <div className={`${styles.rightFriendChat} ${styles.friendChat}`}>
+        {!isCallActive && (
+          <div className={styles.headFriendChat}>
+            <div className={styles.infoFriend}>
+              <div 
+                className={styles.avatarFriendContiner}
+                onClick={() => setShowFriendInfo(true)}
+                style={{ cursor: 'pointer' }}
+              >
+                <Image
+                  className={styles.avatarFriend}
+                  src={avatarSrc}
+                  alt="Аватар"
+                  width={30}
+                  height={30}
+                  priority
+                />
+              </div>
+              <div 
+                className={styles.usernameFriend}
+                onClick={() => setShowFriendInfo(true)}
+                style={{ cursor: 'pointer' }}
+              >
+                {nameFriend}
+              </div>
             </div>
-            <div className={styles.usernameFriend}>{nameFriend}</div>
-          </div>
-          <div className={styles.clickIconsHelp}>
-            <div 
-              className={styles.menu_icon} 
-              onClick={() => handleCallStart('audio')}
-              role="button"
-              aria-label="Аудиозвонок"
-            >
-              <Image
-                className={styles.iconFriend}
-                src="/phone.svg"
-                alt="Телефон"
-                width={30}
-                height={30}
-                priority
-              />
+            <div className={styles.clickIconsHelp}>
+              <div 
+                className={styles.menu_icon} 
+                onClick={() => handleCallStart('audio')}
+                role="button"
+                aria-label="Аудиозвонок"
+              >
+                <Image
+                  className={styles.iconFriend}
+                  src="/phone.svg"
+                  alt="Телефон"
+                  width={30}
+                  height={30}
+                  priority
+                />
+              </div>
+              <div 
+                className={styles.menu_icon} 
+                onClick={() => handleCallStart('video')}
+                role="button"
+                aria-label="Видеозвонок"
+              >
+                <Image
+                  className={styles.iconFriend}
+                  src="/video.svg"
+                  alt="Видеозвонок"
+                  width={30}
+                  height={30}
+                  priority
+                />
+              </div>
+              <div className={styles.menu_icon}>
+                <Image
+                  className={styles.iconFriend}
+                  src="/more-vertical.svg"
+                  alt="Меню"
+                  width={30}
+                  height={30}
+                  priority
+                />
+              </div>
+              <div className={styles.menu_icon}>
+                <button onClick={onClose} className={styles.closeButton}>×</button>
+              </div>
             </div>
-            <div 
-              className={styles.menu_icon} 
-              onClick={() => handleCallStart('video')}
-              role="button"
-              aria-label="Видеозвонок"
-            >
-              <Image
-                className={styles.iconFriend}
-                src="/video.svg"
-                alt="Видеозвонок"
-                width={30}
-                height={30}
-                priority
-              />
-            </div>
-            <div className={styles.menu_icon}>
-              <Image
-                className={styles.iconFriend}
-                src="/more-vertical.svg"
-                alt="Меню"
-                width={30}
-                height={30}
-                priority
-              />
-            </div>
-            <div className={styles.menu_icon}>
-              <button onClick={onClose} className={styles.closeButton}>×</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className={`${styles.mainChat} ${isCallActive ? styles.callActive : ''}`}>
-        {isCallActive && (
-          <div className={styles.callSection}>
-            <CallFriend 
-              profile={profile}
-              idFriend={idFriend}
-              avatarSrc={avatarSrc}
-              onEndCall={handleCallEnd}
-              isIncoming={activeCall?.isIncoming}
-              offer={activeCall?.offer}
-            />
           </div>
         )}
-        <div className={styles.mainChatContiner}>
-          <>
-          {messages.length > 0 ? (
-            [...messages].reverse().map((message) => {
-              const user = message.isMine ? users.me : users.friend;
-              return message.isMine ? (
-                <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
-                  <div className={styles.messageContent}>
-                    <div className={styles.messageUsername}>{user.name}</div>
-                    <div className={styles.messageContentContainer}>
-                      <div className={styles.messageText}>{message.text}</div>
-                      <span className={styles.messageDate}>{message.time}</span>
-                      {message.isRead && (
-                        <Image
-                          className={styles.messageCheck}
-                          src="/check.svg" 
-                          alt="Прочитано"
-                          width={15}
-                          height={15}
-                          priority
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <Image
-                    className={styles.avatar}
-                    src={user.avatar}
-                    alt="Аватар"
-                    width={30}
-                    height={30}
-                    priority
-                  />
-                </div>
-              ) : (
-                <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
-                  <Image
-                    className={styles.avatar}
-                    src={user.avatar}
-                    alt="Аватар"
-                    width={30}
-                    height={30}
-                    priority
-                  />
-                  <div className={styles.messageContent}>
-                    <div className={styles.messageUsername}>{user.name}</div>
-                    <div className={styles.messageContentContainer}>
-                      <div className={styles.messageText}>{message.text}</div>
-                      <span className={styles.messageDate}>{message.time}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className={styles.noMessages}>Нет сообщений</div>
-          )}
-          <div ref={messagesEndRef} />
-        </>
-      </div>
-      </div>
 
-      
+        <div className={`${styles.mainChat} ${isCallActive ? styles.callActive : ''}`}>
+          {isCallActive && (
+            <div className={styles.callSection}>
+              <CallFriend 
+                profile={profile}
+                idFriend={idFriend}
+                avatarSrc={avatarSrc}
+                onEndCall={handleCallEnd}
+                isIncoming={activeCall?.isIncoming}
+                offer={activeCall?.offer}
+              />
+            </div>
+          )}
+          <div className={styles.mainChatContiner}>
+            <>
+              {messages.length > 0 ? (
+                [...messages].reverse().map((message) => {
+                  const user = message.isMine ? users.me : users.friend;
+                  return message.isMine ? (
+                    <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
+                      <div className={styles.messageContent}>
+                        <div className={styles.messageUsername}>{user.name}</div>
+                        <div className={styles.messageContentContainer}>
+                          <div className={styles.messageText}>{message.text}</div>
+                          <span className={styles.messageDate}>{message.time}</span>
+                          {message.isRead && (
+                            <Image
+                              className={styles.messageCheck}
+                              src="/double-check-icon.svg" 
+                              alt="Прочитано"
+                              width={15}
+                              height={15}
+                              priority
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <Image
+                        className={styles.avatar}
+                        src={user.avatar}
+                        alt="Аватар"
+                        width={30}
+                        height={30}
+                        priority
+                      />
+                    </div>
+                  ) : (
+                    <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
+                      <Image
+                        className={styles.avatar}
+                        src={user.avatar}
+                        alt="Аватар"
+                        width={30}
+                        height={30}
+                        priority
+                      />
+                      <div className={styles.messageContent}>
+                        <div className={styles.messageUsername}>{user.name}</div>
+                        <div className={styles.messageContentContainer}>
+                          <div className={styles.messageText}>{message.text}</div>
+                          <span className={styles.messageDate}>{message.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className={styles.noMessages}>Начните общение прямо сейчас</div>
+              )}
+              <div ref={messagesEndRef} />
+            </>
+          </div>
+        </div>
+
         <div className={styles.bottomFriendChat}>
           <a href="#" className={styles.addButton}>
             <Image
@@ -433,7 +472,21 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
             />
           </a>
         </div>
-      
-    </div>
+      </div>
+
+      {showFriendInfo && (
+        <FriendInfoModal
+          friend={{
+            idFriend,
+            nameFriend,
+            avatarSrc,
+            secondName: nameFriend.toLowerCase().replace(/\s+/g, '_'),
+            about: 'MILFhunter',
+            joinDate: '9 дек. 2017 г.'
+          }}
+          onClose={() => setShowFriendInfo(false)}
+        />
+      )}
+    </>
   );
 }

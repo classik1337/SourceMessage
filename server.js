@@ -23,21 +23,52 @@ const usersInfo = new Map();
 // Хранилище для онлайн пользователей
 const onlineUsers = new Set();
 
+// В начале файла после объявления хранилищ
+const updateOnlineStatus = () => {
+  const onlineStatus = {};
+  const connectedSockets = Array.from(io.sockets.sockets.keys());
+  
+  for (const [userId, socketId] of userSockets.entries()) {
+    // Пользователь онлайн если его сокет существует в списке подключенных сокетов
+    onlineStatus[userId] = connectedSockets.includes(socketId);
+  }
+  
+  // Отправляем всем обновленный статус
+  io.emit('online-status-update', onlineStatus);
+  
+  console.log('\n=== Online Status Update ===', {
+    totalUsers: userSockets.size,
+    onlineStatus,
+    connectedSockets: connectedSockets.length
+  });
+};
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.handshake.auth.userId);
   const userId = socket.handshake.auth.userId;
 
-  // Добавляем пользователя в список онлайн
   if (userId) {
-    onlineUsers.add(userId);
-    io.emit('user-connected', userId);
+    // Сохраняем сокет для пользователя
+    userSockets.set(userId, socket.id);
+    // Обновляем статусы
+    updateOnlineStatus();
   }
 
-  // Обработчик регистрации пользователя
+  // Обновляем обработчик register-user
   socket.on('register-user', ({ userId, login, avatar, secondlogin }) => {
     if (!userId) {
       console.log('Попытка регистрации без userId');
       return;
+    }
+
+    // Если пользователь уже был онлайн с другого сокета, очищаем старое подключение
+    const existingSocketId = userSockets.get(userId);
+    if (existingSocketId && existingSocketId !== socket.id) {
+      const existingSocket = io.sockets.sockets.get(existingSocketId);
+      if (existingSocket) {
+        console.log(`Отключаем старое подключение пользователя ${userId}`);
+        existingSocket.disconnect();
+      }
     }
 
     // Сохраняем соответствие userId → socket
@@ -57,7 +88,7 @@ io.on('connection', (socket) => {
     
     usersInfo.set(userId, userData);
 
-    console.log(`Пользователь зарегистрирован:`, {
+    console.log(`\n=== Пользователь зарегистрирован ===`, {
       userId,
       login,
       secondlogin,
@@ -89,17 +120,85 @@ io.on('connection', (socket) => {
       console.log(`\n=== Пользователь отключился ===`, {
         userId: socket.userId,
         login: userData?.login,
-        socketId: socket.id,
-        duration: userData ? 
-          `${(new Date() - userData.connectedAt) / 1000} сек` : 'неизвестно'
+        socketId: socket.id
       });
       
-      console.log(`Осталось активных подключений: ${userSockets.size}`);
+      // Обновляем статусы после отключения
+      updateOnlineStatus();
     }
-    if (userId) {
-      onlineUsers.delete(userId);
-      io.emit('user-disconnected', userId);
+  });
+
+  // Обновляем обработчик get-connection-info
+  socket.on('get-connection-info', ({ targetUserId }, callback) => {
+    const targetId = String(targetUserId);
+    const targetData = usersInfo.get(targetId);
+    const targetSocketId = userSockets.get(targetId);
+    
+    // Получаем список активных сокетов
+    const activeSockets = Array.from(io.sockets.sockets.keys());
+    
+    // Проверяем онлайн статус цели
+    const isOnline = targetSocketId && activeSockets.includes(targetSocketId);
+
+    // Получаем все активные подключения
+    const allConnections = Array.from(userSockets.entries())
+      .map(([userId, socketId]) => {
+        const isUserOnline = activeSockets.includes(socketId);
+        const userData = usersInfo.get(userId) || {};
+        
+        return {
+          userId,
+          socketId,
+          online: isUserOnline,
+          status: isUserOnline ? 'online' : 'offline',
+          ...userData
+        };
+      });
+
+    console.log('\n=== Connection Info Request ===', {
+      requester: socket.userId,
+      target: targetId,
+      targetSocketId,
+      isOnline,
+      activeConnections: allConnections
+        .filter(conn => conn.online)
+        .map(conn => conn.userId)
+    });
+
+    const response = {
+      yourInfo: usersInfo.get(String(socket.userId)),
+      targetInfo: targetData,
+      targetOnline: isOnline,
+      allConnections
+    };
+
+    if (typeof callback === 'function') {
+      callback(response);
     }
+
+    // Отправляем обновление статусов всем
+    const onlineStatus = {};
+    allConnections.forEach(conn => {
+      onlineStatus[conn.userId] = conn.online;
+    });
+    io.emit('online-status-update', onlineStatus);
+  });
+
+  // Добавляем обработчик для запроса статусов
+  socket.on('request-online-status', () => {
+    updateOnlineStatus();
+  });
+
+  // Обновляем обработчик get-online-users
+  socket.on('get-online-users', () => {
+    const onlineStatus = {};
+    const connectedSockets = Array.from(io.sockets.sockets.keys());
+    
+    for (const [userId, socketId] of userSockets.entries()) {
+      onlineStatus[userId] = connectedSockets.includes(socketId);
+    }
+    
+    socket.emit('online-users', onlineStatus);
   });
 
   // Обработчики видеозвонков с полной информацией

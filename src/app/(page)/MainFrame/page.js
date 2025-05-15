@@ -75,16 +75,16 @@ function MainFrameContent() {
         console.log('Incoming call received:', { callerId, callType, callerInfo });
         
         // Используем информацию о звонящем из события напрямую
-        setIncomingCall({
-          offer,
-          callerId,
-          callType,
+      setIncomingCall({
+        offer,
+        callerId,
+        callType,
           socket,
-          callerInfo: {
+        callerInfo: {
             name: callerInfo?.secondlogin || 'Unknown',
             avatar: callerInfo?.avatar || '/default-avatar.jpg'
-          }
-        });
+        }
+      });
       } catch (error) {
         console.error('Error handling incoming call:', error);
       }
@@ -97,7 +97,7 @@ function MainFrameContent() {
     };
   }, [socket, setIncomingCall]);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await fetch('/api/auth/profile')
@@ -154,59 +154,59 @@ console.log(profile.id, "it is my id")
   const myId = profile.id;
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <div className={styles.left_Container}>
-          <div className={styles.left_head_container}>
-            <div className={styles.logo_container}></div>
-          </div>
-          <div className={styles.left_main_container}>
-            <div className={styles.left_main}>
-              <div className={styles.ctas}>
-                <a className={styles.primary} href="#" onClick={handleOpenFriends}>
-                  Friends
-                </a>
-                <a className={styles.primary} href="#" onClick={handleOpenChats}>
-                  Chat
-                </a>
-                <a href="#" className={styles.primary}>
-                  Server
-                </a>
+      <div className={styles.page}>
+        <main className={styles.main}>
+          <div className={styles.left_Container}>
+            <div className={styles.left_head_container}>
+              <div className={styles.logo_container}></div>
+            </div>
+            <div className={styles.left_main_container}>
+              <div className={styles.left_main}>
+                <div className={styles.ctas}>
+                  <a className={styles.primary} href="#" onClick={handleOpenFriends}>
+                    Friends
+                  </a>
+                  <a className={styles.primary} href="#" onClick={handleOpenChats}>
+                    Chat
+                  </a>
+                  <a href="#" className={styles.primary}>
+                    Server
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className={styles.right_Container}>
-          <div className={styles.right_head_container}>
-            <div className={styles.search_container}>
-              <input type="text" placeholder="Поиск..." className={styles.search_input}/>
-            </div>
-            <div className={styles.profile_menu}>
-              <button className={styles.profile_button}>
-                <Image
+          <div className={styles.right_Container}>
+            <div className={styles.right_head_container}>
+              <div className={styles.search_container}>
+                <input type="text" placeholder="Поиск..." className={styles.search_input}/>
+              </div>
+              <div className={styles.profile_menu}>
+                <button className={styles.profile_button}>
+                  <Image
                   className={styles.profile_avatar}
                   src={profile.avatar}
                   alt="Profile avatar"
                   width={32}
                   height={32}
-                />
+                  />
                 <span className={styles.profile_name}>{profile.secondlogin}</span>
-              </button>
-              <div className={styles.dropdown_menu}>
-                <a href="#" onClick={handleOpenProfile} className={styles.menu_item}>Настройки</a>
-                <a href="#" onClick={handleLogout} className={styles.menu_item}>Выйти</a>
+                </button>
+                <div className={styles.dropdown_menu}>
+                  <a href="#" onClick={handleOpenProfile} className={styles.menu_item}>Настройки</a>
+                  <a href="#" onClick={handleLogout} className={styles.menu_item}>Выйти</a>
+                </div>
               </div>
             </div>
-          </div>
-          <div className={styles.main_right_container}>
+            <div className={styles.main_right_container}>
             
-            {openProfile && <Profile/>}
-            {openFriends && <Friends/>}
-            {openChats && <Chat/>}
+              {openProfile && <Profile/>}
+              {openFriends && <Friends/>}
+              {openChats && <Chat/>}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
   );
 }
 
