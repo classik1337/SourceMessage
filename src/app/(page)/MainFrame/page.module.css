@@ -10,9 +10,7 @@
   font-family: var(--font-geist-sans);
   justify-content: center;
   align-items: center;
-  background-image: 
-  linear-gradient(rgba(0, 0, 0, 0.863), rgba(0, 0, 0, 0.384)),
-  url('/background.jpg');
+  background-image: var(--bacground-url-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -239,14 +237,11 @@ a.primary {
   border-color: var(--gray-alpha-200);
   background-color: var(--background);
   color: var(--foreground);
-}
-
-a.primary:hover {
+}a.primary:hover {
   background-color: var(--gray-alpha-200);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 /* a.secondary {
   background: var(--foreground);
   color: var(--background);
@@ -256,3 +251,5 @@ a.secondary:hover {
   background-color: var(--foreground-dark); 
   color: var(--background-light); 
 } */
+
+

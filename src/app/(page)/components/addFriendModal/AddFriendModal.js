@@ -78,7 +78,7 @@ export default function AddFriendModal({ onClose }) {
           <button className={styles.closeButton} onClick={onClose}>
             <Image
               src="/close-icon.svg"
-              alt="Close"
+              alt="Закрыть"
               width={24}
               height={24}
             />
@@ -100,11 +100,27 @@ export default function AddFriendModal({ onClose }) {
             className={styles.searchButton}
             disabled={isLoading}
           >
+            <Image
+              src="/search-icon.svg"
+              alt="Поиск"
+              width={20}
+              height={20}
+            />
             {isLoading ? 'Поиск...' : 'Найти'}
           </button>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && (
+          <div className={styles.error}>
+            <Image
+              src="/error-icon.svg"
+              alt="Ошибка"
+              width={20}
+              height={20}
+            />
+            {error}
+          </div>
+        )}
 
         <div className={styles.searchResults}>
           {searchResults.map(user => (
@@ -131,6 +147,12 @@ export default function AddFriendModal({ onClose }) {
                 className={`${styles.addButton} ${user.isAdded ? styles.added : ''}`}
                 disabled={user.isAdded}
               >
+                <Image
+                  src={user.isAdded ? "/check-icon.svg" : "/add-friend-icon.svg"}
+                  alt={user.isAdded ? "Добавлен" : "Добавить"}
+                  width={20}
+                  height={20}
+                />
                 {user.isAdded ? 'Добавлен' : 'Добавить'}
               </button>
             </div>
@@ -138,6 +160,13 @@ export default function AddFriendModal({ onClose }) {
           
           {searchResults.length === 0 && !isLoading && searchQuery && (
             <div className={styles.noResults}>
+              <Image
+                src="/search-icon.svg"
+                alt="Поиск"
+                width={24}
+                height={24}
+                className={styles.noResultsIcon}
+              />
               Пользователи не найдены
             </div>
           )}

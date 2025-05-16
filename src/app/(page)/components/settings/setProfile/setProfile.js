@@ -1,31 +1,52 @@
 "use client"
 import Image from "next/image"
 import styles from "./page.module.css"
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import EditProfileModal from "../moduleEditProfile/editProfileModal"
 
 export default function SettingProfile() {
-  // Состояния профиля
+  const [activeTab, setActiveTab] = useState('about')
   const [profile, setProfile] = useState({
     id: '',
     login: '',
     role: '',
     email: '',
-    description: '',//2table
-    avatar: "",
+    description: '',
+    avatar: "/castle.jpg",
     location: "",
     secondlogin: "",
+    discord: "",
+    steam: "",
+    twitch: "",
+    joinDate: ""
   })
 
-  // Состояния UI
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeField, setActiveField] = useState('second_name')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [refreshKey, setRefreshKey] = useState(0);
-  const inputRef = useRef()
 
-  // Получение данных профиля
+  const integrations = [
+    { 
+      id: 'discord',
+      name: 'Discord',
+      username: profile.discord || 'Не подключено',
+      icon: '/discord-icon.svg'
+    },
+    { 
+      id: 'steam',
+      name: 'Steam',
+      username: profile.steam || 'Не подключено',
+      icon: '/steam-icon.svg'
+    },
+    { 
+      id: 'twitch',
+      name: 'Twitch',
+      username: profile.twitch || 'Не подключено',
+      icon: '/twitch-icon.svg'
+    }
+  ]
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -35,14 +56,12 @@ export default function SettingProfile() {
         const userData = await response.json()
         setProfile(prev => ({
           ...prev,
-          email: userData.email,
-          id: userData.id,
-          login: userData.login,
-          role: userData.role,
-          description: userData.description,
-          avatar: userData.avatar,
-          location: userData.location,
-          secondlogin: userData.secondlogin
+          ...userData,
+          joinDate: new Date(userData.created_at).toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          })
         }))
       } catch (error) {
         console.error('Profile load error:', error)
@@ -53,9 +72,6 @@ export default function SettingProfile() {
     fetchProfile()
   }, [])
 
-  
-
-  // Обработчики
   const handleChangeClick = (field) => {
     setActiveField(field)
     setIsModalOpen(true)
@@ -63,18 +79,15 @@ export default function SettingProfile() {
   }
 
   const handleSave = async () => {
-    setRefreshKey(prev => prev + 1);
     try {
       setIsLoading(true)
-      const newValue = inputRef.current.value.trim()
+      const newValue = document.querySelector(`.${styles.modalInput}`).value.trim()
       
-      // Валидация
       if (!newValue) throw new Error('Field cannot be empty')
       if (activeField === 'second_name' && newValue.length < 3) {
         throw new Error('Username must be at least 3 characters')
       }
 
-      // Отправка данных
       const response = await fetch('/api/profile/uprofile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,10 +105,9 @@ export default function SettingProfile() {
         throw new Error(data.message || 'Update failed')
       }
 
-      // Обновление состояния
       setProfile(prev => ({
         ...prev,
-        [activeField === 'second_name' ? 'secondlogin' : 'bio']: newValue
+        [activeField === 'second_name' ? 'secondlogin' : 'description']: newValue
       }))
       
       setIsModalOpen(false)
@@ -108,85 +120,131 @@ export default function SettingProfile() {
   }
 
   return (
-    <div className={styles.rightProfile}>
-      <a className={styles.overviewText}>Overview your profile</a>
-      
-      <div className={styles.userProfileTest}>
-        <div className={styles.headProfile}></div>
+    <div className={styles.modalContent}>
+      <div className={styles.profileHeader}>
+        <div className={styles.avatarContainer}>
         <Image
+            src={profile.avatar || '/default-avatar.png'}
+            alt={profile.secondlogin}
+            width={120}
+            height={120}
           className={styles.avatar}
-          src={profile.avatar}
-          alt="User avatar"
-          width={60}
-          height={60}
-          priority
         />
-        
-        <div className={styles.checkInfoContainerName}>
-          <a className={styles.username} onClick={() => handleChangeClick('second_name')}>
-            {profile.secondlogin}
-          </a>
-          <a className={styles.description}>{profile.location}</a>
+          <div className={styles.onlineStatus}>
+            <span className={`${styles.statusDot} ${styles.online}`}></span>
+            Целый экран, пока онлайн
+          </div>
         </div>
         
-        <div className={styles.infoProfile}>
-          {/* Блок логина */}
-          <div className={styles.infoProfileContainer}>
-            <div className={styles.checkInfoContainer}>
-              <a className={styles.overviewTextHelper}>Your unique login</a>
-              <a className={styles.description}>{profile.login}</a>
-            </div>
+        <div className={styles.userInfo}>
+          <div className={styles.userNameContainer} onClick={() => handleChangeClick('second_name')}>
+            <h2 className={styles.userName}>
+              {profile.secondlogin}
+            </h2>
+            <Image
+              src="/edit-icon.svg"
+              width={20}
+              height={20}
+              alt="Edit"
+              className={styles.editIcon}
+            />
           </div>
-          
-          {/* Блок био */}
-          <div className={styles.infoProfileContainer}>
-            <div className={styles.checkInfoContainer}>
-              <a className={styles.overviewTextHelper}>Your bio</a>
-              <a className={styles.description}>{profile.description}</a>
-            </div>
-            <div className={styles.changeButton}> 
-              <a onClick={() => handleChangeClick('bio')}>Change</a>
-            </div>
-          </div>
-          
-          {/* Блок email */}
-          <div className={styles.infoProfileContainer}>
-            <div className={styles.checkInfoContainer}>
-              <a className={styles.overviewTextHelper}>Your Email</a>
-              <a className={styles.description}>{profile.email}</a>
-            </div>
-            <div className={styles.changeButton}>
-              <a>Change</a>
-            </div>
+          <div className={styles.userTag}>@{profile.login}</div>
+          <div className={styles.joinDate}>
+            В числе участников с {profile.joinDate || '9 дек. 2017 г.'}
           </div>
         </div>
       </div>
 
-      {/* Модальное окно редактирования */}
-      <EditProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h3>Edit {activeField === 'second_name' ? 'Username' : 'bio'}</h3>
+      <div className={styles.tabsContainer}>
+        <div 
+          className={`${styles.tab} ${activeTab === 'about' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('about')}
+        >
+          Обо мне
+        </div>
+        <div 
+          className={`${styles.tab} ${activeTab === 'personal' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('personal')}
+        >
+          Личная информация
+            </div>
+          </div>
+          
+      <div className={styles.tabContent}>
+        {activeTab === 'about' && (
+          <div className={styles.aboutContent}>
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Описание</h3>
+              <div className={styles.aboutMeContainer} onClick={() => handleChangeClick('bio')}>
+                <div className={styles.aboutMe}>
+                  {profile.description || "MILFhunter"}
+                </div>
+                <Image
+                  src="/edit-icon.svg"
+                  width={20}
+                  height={20}
+                  alt="Edit"
+                  className={styles.editIcon}
+                />
+              </div>
+            </div>
+
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Интеграции</h3>
+              <div className={styles.integrations}>
+                {integrations.map(integration => (
+                  <div key={integration.id} className={styles.integrationItem}>
+                    <Image
+                      src={integration.icon}
+                      alt={integration.name}
+                      width={24}
+                      height={24}
+                      className={styles.integrationIcon}
+                    />
+                    <div className={styles.integrationInfo}>
+                      <div className={styles.integrationName}>{integration.name}</div>
+                      <div className={styles.integrationUsername}>{integration.username}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         
+        {activeTab === 'personal' && (
+          <div className={styles.personalInfo}>
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Email</div>
+              <div className={styles.infoValue}>{profile.email}</div>
+            </div>
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Локация</div>
+              <div className={styles.infoValue}>{profile.location || 'Не указано'}</div>
+            </div>
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Роль</div>
+              <div className={styles.infoValue}>{profile.role || 'Пользователь'}</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <EditProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h3>Изменить {activeField === 'second_name' ? 'никнейм' : 'описание'}</h3>
         <input
-          ref={inputRef}
           type="text"
           defaultValue={activeField === 'second_name' ? profile.secondlogin : profile.description}
           className={styles.modalInput}
         />
-        
         {error && <div className={styles.errorText}>{error}</div>}
-        
         <div className={styles.modalActions}>
-          <button 
-            onClick={() => setIsModalOpen(false)}
-            disabled={isLoading}
-          >
-            Cancel
+          <button onClick={() => setIsModalOpen(false)} disabled={isLoading}>
+            Отмена
           </button>
-          <button 
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Saving...' : 'Save'}
+          <button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
         </div>
       </EditProfileModal>

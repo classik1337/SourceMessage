@@ -1,5 +1,3 @@
-
-
 .rightFriendChat {
   width: 100%;
   height: 100%;
@@ -11,6 +9,7 @@
 .userFriendChat {
   width: 100%;
   height: 100%;
+  /* background-color: var(--background); */
   border-radius: 8px;
   box-shadow: 0 2px 4px #0000001a;
   justify-content: flex-start;
@@ -51,8 +50,14 @@
 }
 
 .iconFriend {
-  filter: invert(var(--svg-invert-value));
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
   margin-right: 2vh;
+}
+
+.iconFriend:hover {
+  opacity: 1;
 }
 
 .usernameFriend {
@@ -75,24 +80,24 @@
 .mainChat {
   width: 100%;
   height: 95%;
-  display: grid;
+  display: flex;
   flex-direction: column;
   overflow: hidden;
-  
-  
 }
 
 .mainChatContiner {
-   width: 100%;
-  height: 95%;
+  width: 100%;
+  height: 100%;
   
   border-radius: 8px;
+  box-shadow: 0 2px 4px #0000001a;
   justify-content: flex-start;
-
+  min-width: none;
   display: flex;
   align-items: center;
   flex-direction: column;
   overflow-y: scroll;
+  scrollbar-width: none; 
 }
 
 .message {
@@ -112,14 +117,22 @@
 }
 
 .messageContentContainer {
-  display: flex;
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.messageText .messageUsername {
+.messageContentInfo {
+display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.messageText {
   font-size: 14px;
   line-height: 1.4;
+  color: var(--foreground);
 }
 
 .messageDate  {
@@ -129,11 +142,18 @@
   margin-left: 1vw;
 }
 
-.messageCheck {
-  width: 1em;
-  height: 1em;
+.messageDate {
+  font-size: 12px;
+  color: var(--text-secondary);
   align-self: flex-end;
-  
+}
+
+.messageCheck {
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
 }
 
 .leftMessage {
@@ -141,10 +161,9 @@
 }
 
 .leftMessage .messageContent {
-  
-  background-color: #f1f1f1;
+  background-color: var(--message-background-other);
+  color: var(--foreground);
   border-bottom-left-radius: 4px;
-  color: #333;
 }
 
 /* Стили для правых сообщений (ваших) */
@@ -153,17 +172,22 @@
 }
 
 .rightMessage .messageContent {
-  background-color: #0084ff;
+  background-color: var(--accent-color);
+  color: var(--foreground);
   border-bottom-right-radius: 4px;
-  color: white;
+ 
   
 }
 
-
+.rightMessage .messageDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   margin-left: 0.5vw;
@@ -176,22 +200,26 @@
 
 
 .bottomFriendChat {
- width: 95%;
- display: flex;
- flex-grow: 1;
- border-radius: 20px;
- border: 1px solid #ddd;
- outline: none;
- margin-bottom: 2vh;
-
+  width: 95%;
+  display: flex;
+  flex-grow: 1;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  outline: none;
+  margin-bottom: 2vh;
+  background: var(--background-secondary);
 }
 
 .svgPic {
   width: 30px;
   height: 30px;
-  filter: invert(var(--svg-invert-value)); /* Inverts the colors */
-  
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
 
+.svgPic:hover {
+  opacity: 1;
 }
 
 .inputMessage {
@@ -200,7 +228,12 @@
   border-radius: 20px;
   border: none;
   outline: none;
-  background-color: #ffffff00;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.inputMessage::placeholder {
+  color: var(--text-secondary);
 }
 
 .addButton, .sendButton {
@@ -232,7 +265,7 @@
   display: flex;
   flex-direction: column;
   background-color: #1e1e1e;
-  color: white;
+  color: var(--foreground);
 }
 
 .callVideoContainer {
@@ -279,11 +312,12 @@
 }
 
 /* Анимация появления/исчезания */
-.headFriendChat {
+.headFriendChat, .bottomFriendChat {
   transition: opacity 0.3s ease;
 }
 
-.callActive .headFriendChat{ 
+.callActive .headFriendChat,
+.callActive .bottomFriendChat {
   opacity: 0;
   height: 0;
   overflow: hidden;

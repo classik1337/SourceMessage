@@ -45,7 +45,10 @@ export async function GET() {
 
     // Выполняем запрос к таблице user_profiles
     const [profileRows] = await connection.execute(
-      'SELECT * FROM messengerapp.user_profiles WHERE user_id = ?',
+      `SELECT up.*, u.create_at 
+       FROM messengerapp.user_profiles up 
+       JOIN messengerapp.users u ON up.user_id = u.id 
+       WHERE up.user_id = ?`,
       [decoded.id]
     );
 
@@ -62,6 +65,7 @@ export async function GET() {
       avatar: userProfile.avatar_url || null,
       location: userProfile.location || null,
       secondlogin: userProfile.second_name || null,
+      created_at: userProfile.create_at || null,
       profile: userProfile || null // Добавляем данные профиля или null если не найден
     });
 

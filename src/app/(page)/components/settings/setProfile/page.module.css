@@ -60,10 +60,9 @@
 }
 
 .avatar {
-  margin-left: 1vw;
-  margin-top: 3%;
-  position: absolute;
-  z-index: 1;
+
+ 
+
   width: 80px;
   height: 80px;
   border-radius: 50%; 
@@ -164,6 +163,270 @@
   background: var(--accent-color);
   color: white;
   border: none;
+}
+
+.profileContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px;
+  background-color: var(--background-primary);
+}
+
+.profileContent {
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid var(--border-color);
+}
+
+.profileHeader {
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--element-background);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.avatarContainer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+}
+
+.onlineStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3ba55c;
+}
+
+.userInfo {
+  flex-grow: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.userNameContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.userName {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.userTag {
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.joinDate {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 32px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--modal-background);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 16px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.activeTab {
+  color: var(--text-primary);
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-color);
+}
+
+.aboutContent,
+.personalInfo {
+  padding: 24px;
+  flex: 1;
+  min-height: 400px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.aboutMeContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--element-background);
+  transition: background-color 0.2s ease;
+}
+
+.aboutMeContainer:hover {
+  background-color: var(--element-hover);
+}
+
+.aboutMe {
+  flex: 1;
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.editIcon {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  filter: var(--icon-filter);
+  margin-top: 4px;
+}
+
+.userNameContainer:hover .editIcon,
+.aboutMeContainer:hover .editIcon {
+  opacity: 1;
+}
+
+.integrations {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.integrationItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: var(--element-background);
+  transition: background-color 0.2s ease;
+}
+
+.integrationItem:hover {
+  background-color: var(--element-hover);
+}
+
+.integrationIcon {
+  width: 24px;
+  height: 24px;
+  filter: var(--icon-filter);
+}
+
+.integrationInfo {
+  flex-grow: 1;
+}
+
+.integrationName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.integrationUsername {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.personalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--element-background);
+  min-height: 76px;
+}
+
+.infoLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.infoValue {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.modalContent {
+  background-color: var(--modal-background);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  min-height: 700px;
+  border: 1px solid var(--border-color);
+  margin: 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 

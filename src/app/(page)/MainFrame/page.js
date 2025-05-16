@@ -56,15 +56,87 @@ function MainFrameWithProviders() {
 function MainFrameContent() {
   const socket = useSocket();
   const { setIncomingCall } = useCall();
+  const router = useRouter();
   const [openProfile, setOpenProfile] = useState(false);
   const [openFriends, setOpenFriends] = useState(false);
   const [openChats, setOpenChat] = useState(false);
-  const router = useRouter();
   const [profile, setProfile] = useState({
     id: '',
     secondlogin: '',
     avatar: '',
   });
+
+  // Восстанавливаем состояние при загрузке
+  useEffect(() => {
+    // Получаем текущий URL
+    const url = new URL(window.location.href);
+    const module = url.searchParams.get('module');
+    
+    // Восстанавливаем состояние из URL параметра
+    if (module) {
+      switch(module) {
+        case 'profile':
+          setOpenProfile(true);
+          setOpenFriends(false);
+          setOpenChat(false);
+          break;
+        case 'friends':
+          setOpenProfile(false);
+          setOpenFriends(true);
+          setOpenChat(false);
+          break;
+        case 'chats':
+          setOpenProfile(false);
+          setOpenFriends(false);
+          setOpenChat(true);
+          break;
+      }
+    } else {
+      // Если нет параметра в URL, проверяем localStorage
+      const savedModule = localStorage.getItem('lastOpenModule');
+      if (savedModule) {
+        switch(savedModule) {
+          case 'profile':
+            setOpenProfile(true);
+            break;
+          case 'friends':
+            setOpenFriends(true);
+            break;
+          case 'chats':
+            setOpenChat(true);
+            break;
+        }
+      }
+    }
+  }, []);
+
+  const updateModuleState = (module) => {
+    // Сохраняем состояние в localStorage
+    localStorage.setItem('lastOpenModule', module);
+    // Обновляем URL
+    router.push(`/MainFrame?module=${module}`, undefined, { shallow: true });
+  };
+
+  const handleOpenProfile = () => {
+    setOpenProfile(true);
+    setOpenChat(false);
+    setOpenFriends(false);
+    updateModuleState('profile');
+  };
+  
+  const handleOpenFriends = () => {
+    setOpenFriends(true);
+    setOpenChat(false);
+    setOpenProfile(false);
+    updateModuleState('friends');
+  };
+
+  const handleOpenChats = () => {
+    setOpenChat(true);
+    setOpenFriends(false);
+    setOpenProfile(false);
+    updateModuleState('chats');
+  };
 
   // Обработка входящего звонка
   useEffect(() => {
@@ -117,23 +189,6 @@ function MainFrameContent() {
     fetchProfile()
   }, [])
 console.log(profile.id, "it is my id")
-  const handleOpenProfile = () => {
-    setOpenProfile(true);
-    setOpenChat(false);
-    setOpenFriends(false);
-  };
-  
-  const handleOpenFriends = () => {
-    setOpenFriends(true);
-    setOpenChat(false);
-    setOpenProfile(false);
-  };
-
-  const handleOpenChats = () => {
-    setOpenChat(true);
-    setOpenFriends(false);
-    setOpenProfile(false);
-  };
 
   const handleLogout = async () => {
     try {

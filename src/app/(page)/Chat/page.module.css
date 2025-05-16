@@ -1,20 +1,21 @@
 .main_Container {
-  grid-area: 1 / 2 / 2 / 3;
+  grid-area: 1 / 2 / 2 / 3; /* Пример: занимает свою ячейку полностью */
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: hidden; /* Отключаем скролл всей страницы */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--background-primary);
 }
 
 .mainFrame {
   width: 100%;
   height: 100%;
+  overflow-y: scroll;
   display: flex;
   flex-direction: row;
-  background-color: var(--background-primary);
+  /* overflow: hidden; */
+ 
 }
 
 .mainFrameChatContainer {
@@ -23,70 +24,96 @@
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
-  transition: width 0.3s ease;
-  background-color: var(--background-primary);
+  transition: width 0.5s ease;
+  border-right: 1px solid var(--foreground);
+  
 }
 
 .mainFrameChatContainer.compressed {
-  width: 20%;
-  min-width: 280px;
-  border-right: 2px solid var(--border-color);
+  width: 16vw;
 }
 
-.newChatContainer {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--background-primary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.newChatContainer:hover {
-  background-color: var(--background-hover);
-}
-
-.chatText {
-  width: 100%;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  user-select: none;
-}
-
-.chatText:hover {
-  opacity: 0.7;
-}
 
 .chatContainer {
   width: 100%;
-  min-height: 72px;
-  padding: 12px 20px;
+  transition: all 0.3s ease;
+  min-height: 8vh;
+  border-bottom: 1px solid var(--foreground);
+  padding: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--background-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
 }
+.newChatContainer {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 5vh;
+
+  align-items: center;
+  justify-content: space-between;
+ 
+}
+
+.newChatContainer:hover {
+  background-color: var(--background-hover);
+  transform: translateY(-1px);
+}
+
+.chatText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px; 
+}
+
 
 .chatContainer:hover {
-  background-color: var(--background-hover);
+  background-color: var(--background-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.chatContainer:hover .messageTime,
-.chatContainer:hover .lastMessage {
-  color: var(--text-primary);
+.chatContainer:active {
+  transform: translateY(0);
 }
 
-.chatContainer.active {
-  background-color: var(--background-active);
+.chatContainer::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.2s ease;
+}
+
+.chatContainer:hover::after {
+  transform: scaleY(1);
+}
+
+.chatContainer.unread {
+  border-left: 3px solid var(--accent);
+}
+
+.chatContainer.unread .messagePreview {
+  font-weight: 600;
+}
+
+.chatContainer.unread .messageTime {
+  color: var(--accent);
 }
 
 .avatarContainer {
@@ -94,113 +121,47 @@
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border-color);
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
 .messageContent {
   flex-grow: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .messageHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  width: 100%;
+  align-items: baseline;
+  margin-bottom: 4px;
 }
 
 .senderName {
-  font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
-  transition: all 0.3s ease;
+  color: var(--accent);
 }
 
 .messageTime {
-  font-size: 12px;
-  color: var(--text-secondary);
-  transition: all 0.3s ease;
-}
-
-.messageStatus {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.unreadBadge {
-  background-color: #fff;
-  color: #000;
-  border-radius: 50%;
-  min-width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 0 6px;
+  font-size: 0.75em;
+  color: var(--foreground-secondary);
 }
 
 .messageBottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  align-items: baseline;
+  
 }
 
 .lastMessage {
-  flex: 1;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.readStatus {
-  display: flex;
-  align-items: center;
-  margin-left: 8px;
-}
-
-.readIcon {
-  opacity: 0.9;
-  filter: brightness(0) saturate(100%) invert(100%);
-  transition: opacity 0.3s ease;
-}
-
-.unreadIcon {
-  opacity: 0.5;
-  filter: brightness(0) saturate(100%) invert(100%);
-  transition: opacity 0.3s ease;
-}
-
-.chatContainer:hover .readIcon,
-.chatContainer:hover .unreadIcon {
-  opacity: 1;
-}
-
-.loading, .error, .noMessages {
-  width: 100%;
-  padding: 20px;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.error {
-  color: var(--error-color);
-}
-
-/* Стили для окна чата */
-.friendChat {
-  flex: 1;
-  border-left: 2px solid var(--border-color);
+  color: var(--foreground);
 }

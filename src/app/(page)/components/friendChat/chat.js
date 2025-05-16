@@ -6,6 +6,7 @@ import CallFriend from "../callFriend/CallFriend";
 import { useSocket } from '../context/SocketContext/SocketContext';
 import { useCall } from '../context/CallContext/CallContext';
 import FriendInfoModal from '../FriendInfoModal/FriendInfoModal';
+import AddToChatModal from '../AddToChatModal/AddToChatModal';
 
 export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, chatId }) {
   // Состояния
@@ -17,6 +18,7 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
   const [isCallActive, setIsCallActive] = useState(false);
   const [callType, setCallType] = useState(null);
   const [showFriendInfo, setShowFriendInfo] = useState(false);
+  const [showAddToChatModal, setShowAddToChatModal] = useState(false);
   
   const socket = useSocket();
   const { activeCall, setActiveCall } = useCall();
@@ -296,23 +298,23 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
   return (
     <>
       <div className={`${styles.rightFriendChat} ${styles.friendChat}`}>
-        {!isCallActive && (
-          <div className={styles.headFriendChat}>
-            <div className={styles.infoFriend}>
+      {!isCallActive && (
+        <div className={styles.headFriendChat}>
+          <div className={styles.infoFriend}>
               <div 
                 className={styles.avatarFriendContiner}
                 onClick={() => setShowFriendInfo(true)}
                 style={{ cursor: 'pointer' }}
               >
-                <Image
-                  className={styles.avatarFriend}
-                  src={avatarSrc}
-                  alt="Аватар"
-                  width={30}
-                  height={30}
-                  priority
-                />
-              </div>
+              <Image
+                className={styles.avatarFriend}
+                src={avatarSrc}
+                alt="Аватар"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
               <div 
                 className={styles.usernameFriend}
                 onClick={() => setShowFriendInfo(true)}
@@ -320,129 +322,152 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
               >
                 {nameFriend}
               </div>
-            </div>
-            <div className={styles.clickIconsHelp}>
-              <div 
-                className={styles.menu_icon} 
-                onClick={() => handleCallStart('audio')}
-                role="button"
-                aria-label="Аудиозвонок"
-              >
-                <Image
-                  className={styles.iconFriend}
-                  src="/phone.svg"
-                  alt="Телефон"
-                  width={30}
-                  height={30}
-                  priority
-                />
-              </div>
-              <div 
-                className={styles.menu_icon} 
-                onClick={() => handleCallStart('video')}
-                role="button"
-                aria-label="Видеозвонок"
-              >
-                <Image
-                  className={styles.iconFriend}
-                  src="/video.svg"
-                  alt="Видеозвонок"
-                  width={30}
-                  height={30}
-                  priority
-                />
-              </div>
-              <div className={styles.menu_icon}>
-                <Image
-                  className={styles.iconFriend}
-                  src="/more-vertical.svg"
-                  alt="Меню"
-                  width={30}
-                  height={30}
-                  priority
-                />
-              </div>
-              <div className={styles.menu_icon}>
-                <button onClick={onClose} className={styles.closeButton}>×</button>
-              </div>
-            </div>
           </div>
-        )}
-
-        <div className={`${styles.mainChat} ${isCallActive ? styles.callActive : ''}`}>
-          {isCallActive && (
-            <div className={styles.callSection}>
-              <CallFriend 
-                profile={profile}
-                idFriend={idFriend}
-                avatarSrc={avatarSrc}
-                onEndCall={handleCallEnd}
-                isIncoming={activeCall?.isIncoming}
-                offer={activeCall?.offer}
+          <div className={styles.clickIconsHelp}>
+            <div 
+              className={styles.menu_icon} 
+              onClick={() => handleCallStart('audio')}
+              role="button"
+              aria-label="Аудиозвонок"
+            >
+              <Image
+                className={styles.iconFriend}
+                src="/phone.svg"
+                alt="Телефон"
+                width={30}
+                height={30}
+                priority
               />
             </div>
-          )}
-          <div className={styles.mainChatContiner}>
-            <>
-              {messages.length > 0 ? (
-                [...messages].reverse().map((message) => {
-                  const user = message.isMine ? users.me : users.friend;
-                  return message.isMine ? (
-                    <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
-                      <div className={styles.messageContent}>
-                        <div className={styles.messageUsername}>{user.name}</div>
-                        <div className={styles.messageContentContainer}>
-                          <div className={styles.messageText}>{message.text}</div>
-                          <span className={styles.messageDate}>{message.time}</span>
-                          {message.isRead && (
-                            <Image
-                              className={styles.messageCheck}
-                              src="/double-check-icon.svg" 
-                              alt="Прочитано"
-                              width={15}
-                              height={15}
-                              priority
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <Image
-                        className={styles.avatar}
-                        src={user.avatar}
-                        alt="Аватар"
-                        width={30}
-                        height={30}
-                        priority
-                      />
-                    </div>
-                  ) : (
-                    <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
-                      <Image
-                        className={styles.avatar}
-                        src={user.avatar}
-                        alt="Аватар"
-                        width={30}
-                        height={30}
-                        priority
-                      />
-                      <div className={styles.messageContent}>
-                        <div className={styles.messageUsername}>{user.name}</div>
-                        <div className={styles.messageContentContainer}>
-                          <div className={styles.messageText}>{message.text}</div>
-                          <span className={styles.messageDate}>{message.time}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className={styles.noMessages}>Начните общение прямо сейчас</div>
-              )}
-              <div ref={messagesEndRef} />
-            </>
+            <div 
+              className={styles.menu_icon} 
+              onClick={() => handleCallStart('video')}
+              role="button"
+              aria-label="Видеозвонок"
+            >
+              <Image
+                className={styles.iconFriend}
+                src="/video.svg"
+                alt="Видеозвонок"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div 
+              className={styles.menu_icon}
+              onClick={() => setShowAddToChatModal(true)}
+              role="button"
+              aria-label="Добавить участников"
+            >
+              <Image
+                className={styles.iconFriend}
+                src="/add-to-chat-icon.svg"
+                alt="Добавить в чат"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div 
+              className={styles.menu_icon}
+              onClick={() => {/* Добавить обработчик закрепления профиля */}}
+              role="button"
+              aria-label="Закрепить профиль"
+            >
+              <Image
+                className={styles.iconFriend}
+                src="/pin-profile-icon.svg"
+                alt="Закрепить профиль"
+                width={30}
+                height={30}
+                priority
+              />
+            </div>
+            <div className={styles.menu_icon}>
+              <button onClick={onClose} className={styles.closeButton}>×</button>
+            </div>
           </div>
         </div>
+      )}
 
+      <div className={`${styles.mainChat} ${isCallActive ? styles.callActive : ''}`}>
+        {isCallActive && (
+          <div className={styles.callSection}>
+            <CallFriend 
+              profile={profile}
+              idFriend={idFriend}
+              avatarSrc={avatarSrc}
+              onEndCall={handleCallEnd}
+              isIncoming={activeCall?.isIncoming}
+              offer={activeCall?.offer}
+            />
+          </div>
+        )}
+        <div className={styles.mainChatContiner}>
+          <>
+          {messages.length > 0 ? (
+            [...messages].reverse().map((message) => {
+              const user = message.isMine ? users.me : users.friend;
+              return message.isMine ? (
+                <div key={message.id} className={`${styles.message} ${styles.rightMessage}`}>
+                  <div className={styles.messageContent}>
+                    <div className={styles.messageUsername}>{user.name}</div>
+                    <div className={styles.messageContentContainer}>
+                      <div className={styles.messageText}>{message.text}</div>
+                      <div className={styles.messageContentInfo}>
+                      
+                      <span className={styles.messageDate}>{message.time}</span>
+                      {message.isRead && (
+                        <Image
+                          className={styles.messageCheck}
+                              src="/double-check-icon.svg" 
+                          alt="Прочитано"
+                          width={15}
+                          height={15}
+                          priority
+                        />
+                      )}
+                      </div>
+                    </div>
+                  </div>
+                  <Image
+                    className={styles.avatar}
+                    src={user.avatar}
+                    alt="Аватар"
+                    width={30}
+                    height={30}
+                    priority
+                  />
+                </div>
+              ) : (
+                <div key={message.id} className={`${styles.message} ${styles.leftMessage}`}>
+                  <Image
+                    className={styles.avatar}
+                    src={user.avatar}
+                    alt="Аватар"
+                    width={30}
+                    height={30}
+                    priority
+                  />
+                  <div className={styles.messageContent}>
+                    <div className={styles.messageUsername}>{user.name}</div>
+                    <div className={styles.messageContentContainer}>
+                      <div className={styles.messageText}>{message.text}</div>
+                      <span className={styles.messageDate}>{message.time}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+                <div className={styles.noMessages}>Начните общение прямо сейчас</div>
+          )}
+          <div ref={messagesEndRef} />
+        </>
+      </div>
+      </div>
+      
         <div className={styles.bottomFriendChat}>
           <a href="#" className={styles.addButton}>
             <Image
@@ -472,7 +497,11 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
             />
           </a>
         </div>
-      </div>
+        </div>
+      
+      {showAddToChatModal && (
+        <AddToChatModal onClose={() => setShowAddToChatModal(false)} />
+      )}
 
       {showFriendInfo && (
         <FriendInfoModal

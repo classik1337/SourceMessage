@@ -1,7 +1,6 @@
 .rightFriendChat {
   width: 80vw;
   height: 100vh;
-
   color: var(--foreground);
   display: flex;
   flex-direction: column;
@@ -43,7 +42,7 @@
 
 .settingPrimaryHelper {
   font-size: 13px;
-  color: #8e9297;
+  color: var(--text-secondary);
   padding: 8px 4px;
   margin-top: 8px;
 }
@@ -53,14 +52,14 @@
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   margin: 4px 0;
 }
 
 .menuItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--background-hover);
 }
 
 .avatar {
@@ -71,8 +70,8 @@
 }
 
 .menuText {
-  color: #dcddde;
-  font-size: 18px;
+  color: var(--text-primary);
+  font-size: 16px;
   text-decoration: none;
   font-weight: 500;
   flex: 1;
@@ -82,19 +81,21 @@
   text-decoration: none;
 }
 
-/* Стили для табов */
+/* Tabs styles */
 .tabsContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 4px;
   margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
 }
 
 .friendsLabel {
-  color: var(--foreground);
-  font-size: 16px;
-  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
   margin-right: 32px;
 }
 
@@ -106,23 +107,35 @@
 .tab {
   background: none;
   border: none;
-  color: #8e9297;
+  color: var(--text-secondary);
   font-size: 16px;
   cursor: pointer;
   padding: 2px 0;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .tab:hover {
-  color: #dcddde;
+  color: var(--text-primary);
 }
 
 .tab.active {
-  color: #fff;
+  color: var(--text-primary);
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -17px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-color);
+  border-radius: 1px;
 }
 
 .addFriendButton {
-  background: #5865f2;
+  background: var(--accent-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -130,37 +143,41 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .addFriendButton:hover {
-  background: #4752c4;
+  opacity: 0.9;
 }
 
-/* Стили для поиска */
+/* Search styles */
 .searchContainer {
   margin: 8px 0;
 }
 
 .searchInput {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 4px;
-  border: none;
-  background: rgba(0, 0, 0, 0.3);
-  color: #dcddde;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
   font-size: 14px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .searchInput:focus {
   outline: none;
+  border-color: var(--accent-color);
+  background: rgba(var(--background-rgb), 0.1);
 }
 
 .searchInput::placeholder {
-  color: #8e9297;
+  color: var(--text-secondary);
 }
 
-/* Стили для статуса */
+/* Status styles */
 .statusContainer {
   position: relative;
   width: 48px;
@@ -169,12 +186,12 @@
 
 .statusIndicator {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 4px solid #18191c;
+  border: 3px solid var(--background);
   box-sizing: border-box;
 }
 
@@ -183,18 +200,19 @@
 }
 
 .offline {
-  background-color: #747f8d;
+  background-color: var(--text-secondary);
 }
 
 .dnd {
   background-color: #ed4245;
 }
 
-/* Стили для действий */
+/* Action styles */
 .actions {
   display: flex;
-  gap: 4px;
-  opacity: 0.7;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .menuItem:hover .actions {
@@ -205,31 +223,105 @@
   background: none;
   border: none;
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.7;
 }
 
 .actionButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 1;
+  background: rgba(var(--background-rgb), 0.1);
 }
 
 .actionButton img {
-  filter: invert(1);
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  filter: var(--icon-filter);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
 
-/* Контейнер для списка друзей с прокруткой */
-.friendsList {
+.actionButton:hover img {
+  opacity: 1;
+}
+
+/* Friends list container */
+.friendsListWrapper {
   flex: 1;
   overflow-y: auto;
-  margin: 0 -20px;
-  padding: 0 20px;
+  padding-right: 8px;
+}
+
+.friendsListWrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.friendsListWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.friendsListWrapper::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.friendsListWrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Dropdown styles */
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: rgba(var(--background-rgb), 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 200px;
+  z-index: 1000;
+  border: 1px solid var(--border-color);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background: rgba(var(--background-rgb), 0.1);
+}
+
+.dropdownItem img {
+  filter: var(--icon-filter);
+}
+
+.dangerItem {
+  color: #ed4245;
+}
+
+.dangerItem:hover {
+  background: rgba(237, 66, 69, 0.1);
+}
+
+.dangerItem img {
+  filter: none;
 }
  
