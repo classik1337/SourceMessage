@@ -22,7 +22,39 @@ const formatMessageTime = (timestamp) => {
     return messageDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
   }
 };
+// useEffect(() => {
+//   const fetchGroups = async () => {
+//     try {
+//       setLoading(true);
+      
+//       // Получаем токен из localStorage
+//       const token = localStorage.getItem('authToken');
+//       if (!token) {
+//         throw new Error('User not authenticated');
+//       }
 
+//       const response = await fetch('/api/chat/chatGroups', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       });
+      
+//       if (!response.ok) {
+//         throw new Error('Failed to fetch groups');
+//       }
+
+//       const data = await response.json();
+//       setGroups(data);
+//     } catch (err) {
+//       setError(err.message);
+//       console.error('Error fetching groups:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchGroups();
+// }, []);
 const MessageItem = ({ 
   avatarSrc = "/castle.jpg", 
   nameFriend = "NameFriends",

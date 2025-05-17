@@ -83,7 +83,7 @@ export async function POST(request: Request) {
         role: user.role
       },
       process.env.JWT_SECRET!,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
     // Комментарий: Здесь можно инициировать подключение к Socket.IO
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 3600,
+      maxAge: 86400,
       sameSite: 'strict',
     });
 

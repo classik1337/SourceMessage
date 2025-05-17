@@ -512,6 +512,83 @@ io.on('connection', (socket) => {
   socket.on('get-online-users', () => {
     socket.emit('online-users', Array.from(onlineUsers));
   });
+
+  // Обработчик отправки сообщения
+  socket.on('send-message', async (data) => {
+    try {
+      const { messageId, chatId, content, receiverId } = data;
+      const senderId = socket.userId;
+      
+      if (!messageId || !chatId || !content || !receiverId || !senderId) {
+        console.error('Missing required fields:', { messageId, chatId, content, receiverId, senderId });
+        return;
+      }
+      
+      // Добавляем подробное логирование
+      console.log('\n=== Новое сообщение ===');
+      console.log(`Пользователь ${senderId} отправил сообщение ${messageId}`);
+      console.log('Детали сообщения:', {
+        от: senderId,
+        кому: receiverId,
+        чат: chatId,
+        ID_сообщения: messageId,
+        текст: content.substring(0, 50) + (content.length > 50 ? '...' : '') // логируем только начало сообщения
+      });
+
+      // Получаем информацию о пользователях для логов
+      const senderInfo = usersInfo.get(senderId);
+      const receiverInfo = usersInfo.get(receiverId);
+      console.log('Информация об участниках:', {
+        отправитель: {
+          id: senderId,
+          логин: senderInfo?.login || 'неизвестно',
+          статус: senderInfo?.status || 'неизвестно'
+        },
+        получатель: {
+          id: receiverId,
+          логин: receiverInfo?.login || 'неизвестно',
+          статус: receiverInfo?.status || 'неизвестно'
+        }
+      });
+
+      // Получаем сокет получателя
+      const receiverSocketId = userSockets.get(receiverId);
+      
+      // Отправляем сообщение получателю, если он онлайн
+      if (receiverSocketId) {
+        console.log('Отправка сообщения получателю...');
+        io.to(receiverSocketId).emit('new-message', {
+          message: {
+            id: messageId,
+            content,
+            sent_at: new Date().toISOString(),
+            sender_id: senderId,
+            chat_id: chatId
+          },
+          senderId,
+          chatId
+        });
+        console.log('Сообщение успешно доставлено получателю');
+      } else {
+        console.log('Получатель оффлайн, сообщение будет доставлено при подключении');
+      }
+
+      // Отправляем подтверждение отправителю
+      socket.emit('message-sent', {
+        messageId,
+        chatId,
+        timestamp: new Date().toISOString()
+      });
+      console.log('Подтверждение отправлено отправителю');
+
+    } catch (error) {
+      console.error('Ошибка при обработке сообщения:', error);
+      socket.emit('message-error', {
+        messageId,
+        error: 'Failed to process message'
+      });
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3001;

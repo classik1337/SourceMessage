@@ -23,10 +23,6 @@ export default function FriendChat({ idFriend, nameFriend, avatarSrc, onClose, c
   const socket = useSocket();
   const { activeCall, setActiveCall } = useCall();
 
-
-
-
-  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
