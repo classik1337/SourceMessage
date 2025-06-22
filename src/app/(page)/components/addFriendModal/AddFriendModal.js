@@ -30,7 +30,7 @@ export default function AddFriendModal({ onClose }) {
       const data = await response.json();
       setSearchResults(data.map(user => ({
         ...user,
-        isAdded: false
+        isRequested: false
       })));
     } catch (err) {
       setError(err.message);
@@ -52,11 +52,11 @@ export default function AddFriendModal({ onClose }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Не удалось добавить друга');
+        throw new Error(errorData.error || 'Не удалось отправить заявку');
       }
 
       setSearchResults(prev => prev.map(user => 
-        user.user_id === userId ? { ...user, isAdded: true } : user
+        user.user_id === userId ? { ...user, isRequested: true } : user
       ));
     } catch (err) {
       setError(err.message);
@@ -144,16 +144,16 @@ export default function AddFriendModal({ onClose }) {
               </div>
               <button
                 onClick={() => handleAddFriend(user.user_id)}
-                className={`${styles.addButton} ${user.isAdded ? styles.added : ''}`}
-                disabled={user.isAdded}
+                className={`${styles.addButton} ${user.isRequested ? styles.added : ''}`}
+                disabled={user.isRequested}
               >
                 <Image
-                  src={user.isAdded ? "/check-icon.svg" : "/add-friend-icon.svg"}
-                  alt={user.isAdded ? "Добавлен" : "Добавить"}
+                  src={user.isRequested ? "/check-icon.svg" : "/add-friend-icon.svg"}
+                  alt={user.isRequested ? "Заявка отправлена" : "Добавить"}
                   width={20}
                   height={20}
                 />
-                {user.isAdded ? 'Добавлен' : 'Добавить'}
+                {user.isRequested ? 'Заявка отправлена' : 'Добавить'}
               </button>
             </div>
           ))}

@@ -31,7 +31,7 @@ export async function POST(request) {
   let userId;
   try {
     // Верифицируем JWT токен
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     userId = decoded.id;
   } catch (err) {
     return NextResponse.json(
@@ -76,7 +76,7 @@ export async function POST(request) {
       );
     }
 
-    // 2. Проверяем, не добавлен ли уже пользователь
+    // 2. Проверяем, нет ли уже заявки или дружбы
     const [existing] = await connection.execute(
       'SELECT * FROM messengerapp.friends WHERE user_id = ? AND friend_id = ?',
       [userId, friendId]
@@ -84,43 +84,27 @@ export async function POST(request) {
 
     if (existing.length > 0) {
       return NextResponse.json(
-        { error: 'This user is already your friend' },
+        { error: 'Заявка уже отправлена или пользователь уже ваш друг' },
         { status: 400 }
       );
     }
 
-    // 3. Добавляем в друзья (двусторонняя связь)
-    await connection.beginTransaction();
-
-    try {
-      // Добавляем друга для текущего пользователя
-      await connection.execute(
-        'INSERT INTO messengerapp.friends (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
-        [userId, friendId]
-      );
-
-      // И наоборот (если нужна взаимная дружба)
-      await connection.execute(
-        'INSERT INTO messengerapp.friends (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
-        [friendId, userId]
-      );
-
-      await connection.commit();
-    } catch (err) {
-      await connection.rollback();
-      throw err;
-    }
+    // 3. Создаём заявку (статус 'pending')
+    await connection.execute(
+      'INSERT INTO messengerapp.friends (user_id, friend_id, status, created_at) VALUES (?, ?, ?, NOW())',
+      [userId, friendId, 'pending']
+    );
 
     return NextResponse.json(
-      { success: true, message: 'Friend added successfully' }
+      { success: true, message: 'Заявка отправлена' }
     );
   } catch (err) {
     console.error('Database error:', err);
     return NextResponse.json(
-      { error: 'Failed to add friend', details: err.message },
+      { error: 'Failed to send friend request', details: err.message },
       { status: 500 }
     );
   } finally {
     if (connection) connection.release();
   }
-}
+} 

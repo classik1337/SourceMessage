@@ -16,7 +16,7 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
-export async function PUT(request: Request) {
+export async function PUT(request) {
   let connection;
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
@@ -31,7 +31,7 @@ export async function PUT(request: Request) {
     }
 
     // Валидация токена
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
     // Получаем данные из тела запроса
@@ -100,4 +100,4 @@ export async function PUT(request: Request) {
   } finally {
     if (connection) connection.release();
   }
-}
+} 

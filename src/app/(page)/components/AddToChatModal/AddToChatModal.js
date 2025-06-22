@@ -3,16 +3,35 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './AddToChatModal.module.css';
 
-export default function AddToChatModal({ onClose }) {
+export default function AddToChatModal({ onClose, idFriend }) {
   const [friends, setFriends] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [myId, setMyId] = useState(null);
+
+  useEffect(() => {
+    // Получаем id текущего пользователя
+    const fetchProfile = async () => {
+      try {
+        console.log('[AddToChatModal] Запрос профиля пользователя...');
+        const response = await fetch('/api/auth/profile');
+        if (!response.ok) throw new Error('Failed to fetch profile');
+        const userData = await response.json();
+        setMyId(userData.id);
+        console.log('[AddToChatModal] Профиль загружен:', userData);
+      } catch (error) {
+        console.error('[AddToChatModal] Ошибка загрузки профиля:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         setIsLoading(true);
+        console.log('[AddToChatModal] Запрос списка друзей...');
         const response = await fetch('/api/friends/linkFriends', {
           credentials: 'include'
         });
@@ -23,13 +42,15 @@ export default function AddToChatModal({ onClose }) {
 
         const friendsData = await response.json();
         
-        // Проверяем, является ли ответ сообщением об отсутствии друзей
-        if (friendsData.message === 'У вас пока нет друзей') {
+        console.log('[AddToChatModal] Список друзей получен:', friendsData);
+        
+        // Используем friendsData.friends для списка друзей
+        if (!friendsData.friends || friendsData.friends.length === 0) {
           setFriends([]);
           return;
         }
 
-        const formattedFriends = friendsData.map(friend => ({
+        const formattedFriends = friendsData.friends.map(friend => ({
           id: friend.friend_id,
           name: friend.secondlogin || 'Пользователь',
           username: friend.secondlogin || '',
@@ -39,7 +60,7 @@ export default function AddToChatModal({ onClose }) {
         
         setFriends(formattedFriends);
       } catch (error) {
-        console.error('Error fetching friends:', error);
+        console.error('[AddToChatModal] Ошибка загрузки друзей:', error);
       } finally {
         setIsLoading(false);
       }
@@ -55,28 +76,74 @@ export default function AddToChatModal({ onClose }) {
 
   const toggleFriendSelection = (friendId) => {
     setSelectedFriends(prev => {
-      if (prev.includes(friendId)) {
-        return prev.filter(id => id !== friendId);
-      } else {
-        return [...prev, friendId];
-      }
+      const newSelected = prev.includes(friendId)
+        ? prev.filter(id => id !== friendId)
+        : [...prev, friendId];
+      console.log('[AddToChatModal] Изменён выбор друзей:', newSelected);
+      return newSelected;
     });
   };
 
   const handleCreateGroupChat = async () => {
-    if (selectedFriends.length === 0) return;
-
+    if (selectedFriends.length < 1 || !myId || !idFriend) {
+      console.warn('[AddToChatModal] Не выбрано достаточно друзей или не определён пользователь.');
+      return;
+    }
     try {
-      const selectedFriendsData = friends.filter(friend => 
-        selectedFriends.includes(friend.id)
-      );
-      
-      console.log('Creating group chat with:', selectedFriendsData);
-      // Здесь будет API запрос для создания группового чата
-      
+      const userIds = [myId, idFriend, ...selectedFriends];
+      const groupName = 'друг + друг + друг';
+      console.log('[AddToChatModal] Отправка запроса на создание группы:', { groupName, userIds });
+      const response = await fetch('/api/chat/chatGroup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name: groupName, userIds })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('[AddToChatModal] Сервер вернул ошибку:', errorData);
+        throw new Error(errorData.error || 'Ошибка создания группы');
+      }
+      const data = await response.json();
+      console.log('[AddToChatModal] Группа успешно создана:', data);
       onClose();
     } catch (error) {
-      console.error('Error creating group chat:', error);
+      console.error('[AddToChatModal] Ошибка создания группового чата:', error);
+      alert('Ошибка создания группового чата: ' + error.message);
+    }
+  };
+
+  const handleAddToGroupChat = async () => {
+    if (selectedFriends.length < 1 || !myId || !idFriend) {
+      console.warn('[AddToChatModal] Не выбрано достаточно друзей или не определён пользователь.');
+      return;
+    }
+    try {
+      const userIds = [myId, idFriend, ...selectedFriends];
+      console.log('[AddToChatModal] Отправка запроса на добавление в группу:', { userIds });
+      const response = await fetch('/api/chat/chatGroup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ chatId, userIds: selectedFriends })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('[AddToChatModal] Сервер вернул ошибку:', errorData);
+        throw new Error(errorData.error || 'Ошибка добавления в групповой чат');
+      }
+      const data = await response.json();
+      console.log('[AddToChatModal] Участники успешно добавлены в группу:', data);
+      onClose();
+    } catch (error) {
+      console.error('[AddToChatModal] Ошибка добавления в групповой чат:', error);
+      alert('Ошибка добавления в групповой чат: ' + error.message);
     }
   };
 
@@ -148,9 +215,17 @@ export default function AddToChatModal({ onClose }) {
         <button
           className={styles.createButton}
           onClick={handleCreateGroupChat}
-          disabled={selectedFriends.length === 0}
+          disabled={selectedFriends.length < 1 || !myId || !idFriend}
         >
-          Создать ЛС
+          Создать групповой чат
+        </button>
+
+        <button
+          className={styles.addButton}
+          onClick={handleAddToGroupChat}
+          disabled={selectedFriends.length < 1 || !myId || !idFriend}
+        >
+          Добавить в групповой чат
         </button>
       </div>
     </div>

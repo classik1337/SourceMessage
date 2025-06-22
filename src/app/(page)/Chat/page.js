@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import FriendChat from "../components/friendChat/chat";
 import NewChatModal from '../components/NewChatModal';
+import { useSocket } from '../components/context/SocketContext/SocketContext';
+import GroupChat from '../components/groupChat/chat';
 
 const formatMessageTime = (timestamp) => {
   const messageDate = new Date(timestamp);
@@ -18,7 +20,7 @@ const formatMessageTime = (timestamp) => {
     // Если сообщение сегодня, показываем только время
     return messageDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   } else {
-    // Если другой день, показываем дату
+    // Если другой день, показываем дату в формате дд мм
     return messageDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
   }
 };
@@ -56,12 +58,18 @@ const formatMessageTime = (timestamp) => {
 //   fetchGroups();
 // }, []);
 const MessageItem = ({ 
+  type = 'personal',
   avatarSrc = "/castle.jpg", 
   nameFriend = "NameFriends",
+  nameGroup,
   idFriend = "#1",
+  idGroup,
   timestamp,
   timeMessage,
   contentMessage = "Hello, how are you?",
+  lastMessage,
+  lastMessageTime,
+  membersCount,
   isActive = false,
   isMyMessage = false,
   isRead = false,
@@ -77,7 +85,7 @@ const MessageItem = ({
         className={styles.avatar}
         aria-hidden
         src={avatarSrc}
-        alt="Friend Avatar"
+        alt="Avatar"
         width={50}
         height={50}
       />
@@ -85,14 +93,23 @@ const MessageItem = ({
     <div className={styles.messageContent}>
       <div className={styles.messageHeader}>
         <span className={styles.senderName}>
-          {nameFriend}
+          {type === 'group' ? nameGroup : nameFriend}
         </span>
-        <span className={styles.messageTime}>{timeMessage}</span>
+        <span className={styles.messageTime}>
+          {type === 'group' ? (lastMessageTime ? formatMessageTime(lastMessageTime) : '') : timeMessage}
+        </span>
       </div>
       <div className={styles.messageBottom}>
         <div className={styles.lastMessage}>
-          {contentMessage}
+          {type === 'group'
+            ? (lastMessage || 'Нет сообщений')
+            : (isMyMessage ? <span style={{color: 'var(--accent)', fontWeight: 500}}>Вы: </span> : null)}{type === 'group' ? '' : contentMessage}
         </div>
+        {type === 'group' && (
+          <div className={styles.groupInfo}>
+            <span>Участников: {membersCount}</span>
+          </div>
+        )}
         <div className={styles.messageStatus}>
           {unreadCount > 0 && !isMyMessage && (
             <div className={styles.unreadBadge}>
@@ -125,30 +142,68 @@ export default function Chat() {
   const [currentFriend, setCurrentFriend] = useState(null);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [showGroupChat, setShowGroupChat] = useState(false);
+  const [currentGroup, setCurrentGroup] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const socket = useSocket();
 
   const handleMessageClick = (message) => {
-    if (currentFriend && currentFriend.idFriend === message.idFriend) {
-      // Если кликнули на тот же чат - закрываем его
-      setShowChat(false);
-      setCurrentFriend(null);
-      setIsCompressed(false);
-      setCurrentChatId(null);
-    } else {
-      // Если кликнули на другой чат - открываем его
-      setCurrentFriend({
-        idFriend: message.idFriend,
-        nameFriend: message.nameFriend,
-        avatarSrc: message.avatarSrc
-      });
-      setShowChat(true);
-      setIsCompressed(true);
-      setCurrentChatId(message.chatId);
+    // Logic for group chats
+    if (message.type === 'group') {
+      // If the same group chat is clicked, close it
+      if (currentGroup && currentGroup.idGroup === message.idGroup) {
+        setShowGroupChat(false);
+        setCurrentGroup(null);
+        setIsCompressed(false);
+      } else {
+        // Close personal chat window if open
+        setShowChat(false);
+        setCurrentFriend(null);
+        setCurrentChatId(null);
+        // Open group chat
+        setCurrentGroup(message);
+        setShowGroupChat(true);
+        setIsCompressed(true);
+      }
+    } 
+    // Logic for personal chats
+    else {
+      // If the same personal chat is clicked, close it
+      if (currentFriend && currentFriend.idFriend === message.idFriend) {
+        setShowChat(false);
+        setCurrentFriend(null);
+        setIsCompressed(false);
+        setCurrentChatId(null);
+      } else {
+        // Close group chat window if open
+        setShowGroupChat(false);
+        setCurrentGroup(null);
+        // Open personal chat
+        setCurrentFriend({
+          idFriend: message.idFriend,
+          nameFriend: message.nameFriend,
+          avatarSrc: message.avatarSrc
+        });
+        setShowChat(true);
+        setIsCompressed(true);
+        setCurrentChatId(message.chatId);
+        setMessages(prev => prev.map(msg =>
+          msg.idFriend === message.idFriend ? { ...msg, unreadCount: 0 } : msg
+        ));
+      }
     }
   };
 
   const handleCloseChat = () => {
     setShowChat(false);
     setCurrentFriend(null);
+    setIsCompressed(false);
+    setCurrentChatId(null);
+  };
+
+  const handleCloseGroupChat = () => {
+    setShowGroupChat(false);
+    setCurrentGroup(null);
     setIsCompressed(false);
   };
 
@@ -157,79 +212,131 @@ export default function Chat() {
     setShowNewChatModal(true);
   };
 
-  const handleSelectFriend = async (friend) => {
+  const handleSelectFriend = (friend) => {
     // Проверяем, нет ли уже открытого чата с этим другом
     const existingChat = messages.find(msg => msg.idFriend === friend.idFriend);
-    
     if (existingChat) {
       handleMessageClick(existingChat);
     } else {
-      // Создаем новый чат
-      try {
-        const response = await fetch('/api/chat/createChat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            friendId: friend.idFriend
-          }),
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create chat');
-        }
-
-        const data = await response.json();
-        
-        // Добавляем новый чат в список
-        const newChat = {
-          idFriend: friend.idFriend,
-          nameFriend: friend.nameFriend,
-          avatarSrc: friend.avatarSrc,
-          chatId: data.chatId,
-          contentMessage: '', // Пустое последнее сообщение для нового чата
-          timestamp: new Date().toISOString(),
-          isMyMessage: false,
-          isRead: true
-        };
-
-        setMessages(prev => [newChat, ...prev]);
-        handleMessageClick(newChat);
-      } catch (err) {
-        console.error('Error creating chat:', err);
-      }
+      // Просто открываем FriendChat с этим другом, chatId = null
+      setCurrentFriend({
+        idFriend: friend.idFriend,
+        nameFriend: friend.nameFriend,
+        avatarSrc: friend.avatarSrc
+      });
+      setShowChat(true);
+      setIsCompressed(true);
+      setCurrentChatId(null);
     }
     setShowNewChatModal(false);
   };
 
+  const filteredMessages = messages.filter(message => {
+    const chatName = message.type === 'group' ? message.nameGroup : message.nameFriend;
+    return chatName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   useEffect(() => {
-    const fetchMessages = async () => {
+    const fetchAllChats = async () => {
+      setLoading(true);
       try {
+        // 1. Личные чаты
         const response = await fetch('/api/chat/chatChecker', {
           credentials: 'include'
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch messages');
-        }
-  
+        if (!response.ok) throw new Error('Failed to fetch messages');
         const data = await response.json();
-        const sortedMessages = (data.messages || []).sort((a, b) => 
-          new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        setMessages(sortedMessages);
+        const personalChats = (data.messages || []).map(msg => ({
+          ...msg,
+          type: 'personal'
+        }));
+        // Фильтруем только уникальные чаты по idFriend (оставляем самый новый)
+        const uniquePersonalMap = new Map();
+        personalChats.forEach(msg => {
+          if (!uniquePersonalMap.has(msg.idFriend) || new Date(msg.timestamp) > new Date(uniquePersonalMap.get(msg.idFriend).timestamp)) {
+            uniquePersonalMap.set(msg.idFriend, msg);
+          }
+        });
+        const uniquePersonalChats = Array.from(uniquePersonalMap.values());
+
+        // 2. Групповые чаты
+        const token = localStorage.getItem('token');
+        const groupRes = await fetch('/api/chat/chatGroup', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!groupRes.ok) throw new Error('Failed to fetch group chats');
+        const groupData = await groupRes.json();
+        const groupChats = (groupData || []).map(group => ({
+          idGroup: group.group_id,
+          nameGroup: group.group_name,
+          lastMessage: group.last_message_content,
+          lastMessageTime: group.last_message_time,
+          membersCount: group.members_count,
+          type: 'group',
+          avatarSrc: '/group.svg'
+        }));
+        // Фильтруем только уникальные групповые чаты по idGroup
+        const uniqueGroupMap = new Map();
+        groupChats.forEach(group => {
+          if (!uniqueGroupMap.has(group.idGroup)) {
+            uniqueGroupMap.set(group.idGroup, group);
+          }
+        });
+        const uniqueGroupChats = Array.from(uniqueGroupMap.values());
+
+        // 3. Объединяем
+        setMessages([...uniquePersonalChats, ...uniqueGroupChats]);
       } catch (err) {
-        console.error('Error fetching messages:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchMessages();
+    fetchAllChats();
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewMessage = ({ message }) => {
+      if (!message) return;
+      setMessages(prev => {
+        const idx = prev.findIndex(
+          m => m.chatId === message.chat_id || m.idFriend === message.sender_id || m.idFriend === message.receiver_id
+        );
+        if (idx !== -1) {
+          const isActive = currentFriend && (prev[idx].idFriend === currentFriend.idFriend);
+          return prev.map((msg, i) =>
+            i === idx
+              ? {
+                  ...msg,
+                  contentMessage: message.content || message.text,
+                  timestamp: message.sent_at || new Date().toISOString(),
+                  unreadCount: isActive ? 0 : (msg.unreadCount || 0) + 1,
+                  isRead: isActive ? true : msg.isRead
+                }
+              : msg
+          );
+        } else {
+          return [
+            {
+              idFriend: message.sender_id,
+              nameFriend: message.senderName || 'Новый пользователь',
+              avatarSrc: message.avatar || '/castle.jpg',
+              chatId: message.chat_id,
+              contentMessage: message.content || message.text,
+              timestamp: message.sent_at || new Date().toISOString(),
+              isMyMessage: false,
+              isRead: false,
+              unreadCount: 1
+            },
+            ...prev
+          ];
+        }
+      });
+    };
+    socket.on('new-message', handleNewMessage);
+    return () => socket.off('new-message', handleNewMessage);
+  }, [socket, currentFriend]);
 
   if (loading) {
     return <div className={styles.loading}>Loading messages...</div>;
@@ -243,37 +350,50 @@ export default function Chat() {
     <div className={styles.main_Container}>
       <div className={styles.mainFrame}>
         <div className={`${styles.mainFrameChatContainer} ${isCompressed ? styles.compressed : ''}`}>
-          <div 
-            className={styles.newChatContainer} 
-            onClick={() => {
-              console.log('New chat container clicked');
-              handleNewChat();
-            }}
-          >
-            <span className={styles.chatText}>
-              Начать новый чат с друзьями +
-            </span>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Поиск или новый чат..."
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className={styles.addChatButton} onClick={handleNewChat}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="11" fill="#00ff9f" fillOpacity="0.18"/>
+                <path d="M11 6V16" stroke="#00ff9f" strokeWidth="2.2" strokeLinecap="round"/>
+                <path d="M6 11H16" stroke="#00ff9f" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
+            </button>
           </div>
-          {messages.length > 0 ? (
-            messages.map(message => (
-              <MessageItem
-                key={message.idFriend}
-                avatarSrc={message.avatarSrc}
-                nameFriend={message.nameFriend}
-                idFriend={message.idFriend}
-                timestamp={message.timestamp}
-                timeMessage={formatMessageTime(message.timestamp)}
-                contentMessage={message.contentMessage}
-                isActive={currentFriend?.idFriend === message.idFriend}
-                isMyMessage={message.isMyMessage}
-                isRead={message.isRead}
-                unreadCount={message.unreadCount}
-                onClick={() => handleMessageClick(message)}
-              />
-            ))
-          ) : (
-            <div className={styles.noMessages}>No messages found</div>
-          )}
+          <div className={styles.chatList}>
+            {filteredMessages.length > 0 ? (
+              filteredMessages.map(message => (
+                <MessageItem
+                  key={message.type === 'group' ? `group-${message.idGroup}` : message.idFriend}
+                  type={message.type}
+                  avatarSrc={message.avatarSrc}
+                  nameFriend={message.nameFriend}
+                  nameGroup={message.nameGroup}
+                  idFriend={message.idFriend}
+                  idGroup={message.idGroup}
+                  timestamp={message.timestamp}
+                  timeMessage={formatMessageTime(message.timestamp)}
+                  contentMessage={message.contentMessage}
+                  lastMessage={message.lastMessage}
+                  lastMessageTime={message.lastMessageTime}
+                  membersCount={message.membersCount}
+                  isActive={currentFriend?.idFriend === message.idFriend}
+                  isMyMessage={message.isMyMessage}
+                  isRead={message.isRead}
+                  unreadCount={message.unreadCount}
+                  onClick={() => handleMessageClick(message)}
+                />
+              ))
+            ) : (
+              <div className={styles.noMessages}>Чаты не найдены</div>
+            )}
+          </div>
         </div>
         {showChat && currentFriend && (
           <FriendChat 
@@ -283,6 +403,16 @@ export default function Chat() {
             avatarSrc={currentFriend.avatarSrc}
             onClose={handleCloseChat}
             chatId={currentChatId}
+          />
+        )}
+        {showGroupChat && currentGroup && (
+          <GroupChat
+            key={currentGroup.idGroup}
+            idFriend={null}
+            nameFriend={currentGroup.nameGroup}
+            avatarSrc={currentGroup.avatarSrc}
+            onClose={handleCloseGroupChat}
+            chatId={currentGroup.idGroup}
           />
         )}
       </div>

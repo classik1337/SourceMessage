@@ -4,18 +4,18 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
+  background: rgba(10, 10, 10, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(8px) saturate(120%);
 }
 
 .modalContent {
-  background: rgba(32, 34, 37, 0.95);
-  border-radius: 12px;
-  padding: 24px;
+  background: rgba(20, 20, 20, 0.85);
+  border-radius: 18px;
+  padding: 32px 28px;
   width: 100%;
   max-width: 440px;
   max-height: 80vh;
@@ -23,38 +23,41 @@
   flex-direction: column;
   gap: 20px;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 1.5px solid rgba(0,255,159,0.18);
+  box-shadow: 0 8px 32px 0 rgba(0,255,159,0.10), 0 1.5px 8px 0 rgba(0,0,0,0.7);
   color: #fff;
+  backdrop-filter: blur(12px) saturate(120%);
 }
 
 .modalHeader {
   position: relative;
   padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1.5px solid rgba(0,255,159,0.12);
 }
 
 .modalHeader h2 {
-  color: #fff;
+  color: #00ff9f;
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px #00ff9f44;
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0,255,159,0.7);
   margin: 5px 0 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .closeButton {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: none;
-  border: none;
+  background: rgba(0,0,0,0.25);
+  border: 1.5px solid #00ff9f44;
   font-size: 24px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #00ff9f;
   cursor: pointer;
   padding: 5px;
   display: flex;
@@ -63,12 +66,14 @@
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  transition: all 0.2s ease;
+  box-shadow: 0 0 8px #00ff9f44;
+  transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #00ff9f22;
   color: #fff;
+  border-color: #00ff9f;
 }
 
 .searchContainer {
@@ -79,21 +84,21 @@
   width: 100%;
   padding: 12px 16px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1.5px solid rgba(0,255,159,0.18);
+  background: rgba(0,0,0,0.35);
   color: #fff;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-size: 15px;
+  transition: all 0.2s;
 }
 
 .searchInput::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(0,255,159,0.35);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.3);
+  border-color: #00ff9f;
+  background: rgba(0,0,0,0.45);
 }
 
 .friendsList {
@@ -115,12 +120,12 @@
 }
 
 .friendsList::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #00ff9f33;
   border-radius: 4px;
 }
 
 .friendsList::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #00ff9f55;
 }
 
 .friendItem {
@@ -129,12 +134,14 @@
   justify-content: space-between;
   padding: 8px 12px;
   border-radius: 8px;
-  transition: all 0.2s ease;
-  background: transparent;
+  transition: all 0.2s;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid transparent;
 }
 
 .friendItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0,255,159,0.08);
+  border: 1px solid #00ff9f33;
 }
 
 .friendInfo {
@@ -146,6 +153,8 @@
 .avatar {
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #00ff9f33;
+  box-shadow: 0 0 8px #00ff9f22;
 }
 
 .friendName {
@@ -156,11 +165,12 @@
 
 .friendName span:first-child {
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
+  text-shadow: 0 0 4px #00ff9f22;
 }
 
 .username {
-  color: rgba(255, 255, 255, 0.4);
+  color: #00ff9f99;
   font-size: 13px;
 }
 
@@ -168,17 +178,18 @@
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid #00ff9f55;
   cursor: pointer;
   appearance: none;
   background: transparent;
   position: relative;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .checkbox:checked {
-  background: #5865F2;
-  border-color: #5865F2;
+  background: #00ff9f;
+  border-color: #00ff9f;
+  box-shadow: 0 0 8px #00ff9f88;
 }
 
 .checkbox:checked::after {
@@ -194,27 +205,34 @@
 }
 
 .checkbox:hover {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: #00ff9f;
 }
 
 .createButton {
-  padding: 12px;
-  background: #5865F2;
-  color: white;
+  padding: 14px;
+  background: linear-gradient(90deg, #00ff9f 0%, #00e0ff 100%);
+  color: #111;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 0 16px #00ff9f88, 0 2px 8px #00ff9f33;
   margin-top: 8px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  text-shadow: 0 0 8px #00ff9f44;
 }
 
 .createButton:hover {
-  background: #4752C4;
+  background: linear-gradient(90deg, #00ffb7 0%, #00eaff 100%);
+  color: #000;
+  box-shadow: 0 0 24px #00ff9fcc, 0 2px 12px #00ff9f55;
 }
 
 .createButton:disabled {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0,255,159,0.18);
+  color: #444;
   cursor: not-allowed;
+  box-shadow: none;
 } 

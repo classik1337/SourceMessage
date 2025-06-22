@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './NewChatModal.module.css';
+import FriendList from '../friendsList/page';
 
 export default function NewChatModal({ onClose, onSelectFriend }) {
   const [friends, setFriends] = useState([]);
@@ -12,14 +13,10 @@ export default function NewChatModal({ onClose, onSelectFriend }) {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await fetch('/api/friends/list', {
+        const response = await fetch('/api/friends/linkFriends', {
           credentials: 'include'
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch friends');
-        }
-
+        if (!response.ok) throw new Error('Failed to fetch friends');
         const data = await response.json();
         setFriends(data.friends || []);
       } catch (err) {
@@ -29,20 +26,18 @@ export default function NewChatModal({ onClose, onSelectFriend }) {
         setLoading(false);
       }
     };
-
     fetchFriends();
   }, []);
 
   const filteredFriends = friends.filter(friend =>
-    friend.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    friend.second_name.toLowerCase().includes(searchQuery.toLowerCase())
+    (friend.secondlogin || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectFriend = (friend) => {
     onSelectFriend({
-      idFriend: friend.id,
-      nameFriend: friend.full_name,
-      avatarSrc: friend.avatar_url || '/default-avatar.png'
+      idFriend: friend.friend_id,
+      nameFriend: friend.secondlogin,
+      avatarSrc: friend.avatar || '/castle.jpg'
     });
     onClose();
   };
@@ -77,20 +72,20 @@ export default function NewChatModal({ onClose, onSelectFriend }) {
           ) : (
             filteredFriends.map(friend => (
               <div
-                key={friend.id}
+                key={friend.friend_id}
                 className={styles.friendItem}
                 onClick={() => handleSelectFriend(friend)}
               >
                 <Image
-                  src={friend.avatar_url || '/default-avatar.png'}
-                  alt={friend.full_name}
+                  src={friend.avatar || '/castle.jpg'}
+                  alt={friend.secondlogin}
                   width={40}
                   height={40}
                   className={styles.friendAvatar}
                 />
                 <div className={styles.friendInfo}>
-                  <div className={styles.friendName}>{friend.full_name}</div>
-                  <div className={styles.friendUsername}>@{friend.second_name}</div>
+                  <div className={styles.friendName}>{friend.secondlogin}</div>
+                  <div className={styles.friendUsername}>@{friend.friend_id}</div>
                 </div>
               </div>
             ))

@@ -1,4 +1,3 @@
-// app/api/auth/profile/route.ts
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
@@ -33,12 +32,7 @@ export async function GET() {
     }
 
     // Декодируем токен
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      email: string;
-      id: string;
-      login: string;
-      role: string;
-    };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Получаем соединение из пула
     connection = await pool.getConnection();
@@ -61,11 +55,11 @@ export async function GET() {
       id: decoded.id,
       login: decoded.login,
       role: decoded.role,
-      description: userProfile.bio || null,
-      avatar: userProfile.avatar_url || null,
-      location: userProfile.location || null,
-      secondlogin: userProfile.second_name || null,
-      created_at: userProfile.create_at || null,
+      description: userProfile?.bio || null,
+      avatar: userProfile?.avatar_url || null,
+      location: userProfile?.location || null,
+      secondlogin: userProfile?.second_name || null,
+      created_at: userProfile?.create_at || null,
       profile: userProfile || null // Добавляем данные профиля или null если не найден
     });
 
@@ -79,4 +73,4 @@ export async function GET() {
     // Всегда возвращаем соединение в пул
     if (connection) connection.release();
   }
-}
+} 

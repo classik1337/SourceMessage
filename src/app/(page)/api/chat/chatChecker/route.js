@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import mysql from 'mysql2/promise';
+import CryptoJS from 'crypto-js';
 
 // Конфигурация базы данных
 const dbConfig = {
@@ -17,8 +18,22 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
+const ENCRYPTION_KEY = process.env.SECRET_KEY;
+
+// Функция для расшифровки сообщения
+function decryptMessage(encryptedContent) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedContent, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return decrypted || '[Ошибка расшифровки]';
+  } catch (e) {
+    // Если не удалось расшифровать, возвращаем исходное сообщение (возможно, старое незашифрованное)
+    return encryptedContent;
+  }
+}
+
 // Функция форматирования времени
-function formatMessageTime(dateTimeString: string) {
+function formatMessageTime(dateTimeString) {
   if (!dateTimeString) return '00:00';
   
   const messageDate = new Date(dateTimeString);
@@ -43,7 +58,7 @@ export async function GET(request) {
   const token = cookieStore.get('token')?.value;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
     if (!userId) {
@@ -103,14 +118,14 @@ export async function GET(request) {
       );
     }
     
-    // Преобразуем данные в формат для MessageItem
+    // Преобразуем данные в формат для MessageItem с расшифровкой
     const formattedMessages = messages.map(message => ({
       idFriend: message.friend_id,
       nameFriend: message.friend_second_name || message.friend_username,
       avatarSrc: message.friend_avatar_url || '/castle.jpg',
       timestamp: message.sent_at,
       timeMessage: formatMessageTime(message.sent_at),
-      contentMessage: message.content,
+      contentMessage: decryptMessage(message.content), // Расшифрованное сообщение
       isMyMessage: message.sender_id === userId,
       isRead: message.is_read,
       chatId: message.chat_id

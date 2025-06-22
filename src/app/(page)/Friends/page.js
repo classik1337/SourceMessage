@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
@@ -22,7 +24,7 @@ export default function Friends() {
         if (!response.ok) throw new Error('Failed to fetch friends');
         
         const friendsData = await response.json();
-        setFriends(friendsData);
+        setFriends(friendsData.friends || []);
       } catch (error) {
         console.error('Friends load error:', error);
         setError('Failed to load friends data');
@@ -36,48 +38,6 @@ export default function Friends() {
     <div className={styles.main_Container}>
       <div className={styles.mainFrame}>
         <div className={styles.friendsPage}>
-          {/* <div className={styles.leftFriends}>
-            <div className={styles.settingFriends}>
-              <div className={styles.settingPrimary}>
-                <a className={styles.settingPrimaryHelper}>YOUR FRIENDS</a>
-                
-                {error ? (
-                  <div className={styles.error}>{error}</div>
-                ) : friends.length > 0 ? (
-                  friends.map(friend => (
-                    <div className={styles.menuItem} key={friend.friend_id}>
-                      <Image
-                        className={styles.avatar}
-                        src={friend.avatar || "/castle.jpg"}
-                        alt={"userAvatar"}
-                        width={30}
-                        height={30}
-                        priority
-                      />
-                      <a 
-                        className={styles.menuText} 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleFriendClick({
-                            idFriend: friend.friend_id,
-                            nameFriend: friend.secondlogin,
-                            avatarSrc: friend.avatar || "/castle.jpg"
-                          });
-                        }} 
-                        href={`#${friend.friend_id}`}
-                      >
-                        {friend.secondlogin || "No name"}
-                      </a>
-                    </div>
-                  ))
-                ) : (
-                  <div>No friends found</div>
-                )}
-                
-                <div className={styles.divider} />
-              </div>
-            </div>
-          </div> */}
           <div className={styles.rightFriend}>
             {showChat && currentFriend ? (
               <FriendChat 

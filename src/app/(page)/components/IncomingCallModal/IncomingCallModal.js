@@ -155,7 +155,16 @@ export default function IncomingCallModal({
               />
             </div>
           </div>
-          <h2 className={styles.callerName}>{callerInfo?.name || 'Unknown caller'}</h2>
+          <h2 className={styles.callerName}>{callerInfo?.name || callerInfo?.login || 'Unknown caller'}</h2>
+          {callerInfo && (
+            <div className={styles.callerDetails}>
+              {callerInfo.login && <div>Логин: {callerInfo.login}</div>}
+              {callerInfo.secondlogin && <div>Ник: {callerInfo.secondlogin}</div>}
+              {callerInfo.id && <div>ID: {callerInfo.id}</div>}
+              {callerInfo.phone && <div>Телефон: {callerInfo.phone}</div>}
+              {callerInfo.email && <div>Email: {callerInfo.email}</div>}
+            </div>
+          )}
           <p className={styles.callTypeText}>
             {callType === 'video' ? 'Видеозвонок' : 'Аудиозвонок'}
           </p>

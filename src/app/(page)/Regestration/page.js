@@ -3,13 +3,10 @@ import { useState } from 'react';
 import Image from "next/image";
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation'; 
-import { io } from 'socket.io-client';
 
 export default function Registration() {
   const router = useRouter();
   const [error, setError] = useState('');
-  const regMail = "Create your account — Start building today!";
-  const logMail = "Welcome back! Log in to continue."
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -31,19 +28,19 @@ export default function Registration() {
   const validate = () => {
     const newErrors = {};
     
-    if (!isLogin && !formData.name.trim()) newErrors.name = 'Name is required';
+    if (!isLogin && !formData.name.trim()) newErrors.name = 'Требуется имя';
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Требуется email';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = 'Неверный формат email';
     }
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Требуется пароль';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'Пароль должен содержать не менее 6 символов';
     }
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'Пароли не совпадают';
     }
 
     setErrors(newErrors);
@@ -76,243 +73,162 @@ export default function Registration() {
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Сохраняем токен и данные пользователя
-      
-        
-        // Перенаправляем на главную страницу
+        if (data.socket && data.socket.token) {
+          localStorage.setItem('token', data.socket.token);
+        }
         router.push('/MainFrame');
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Authentication failed');
+        setError(errorData.message || 'Ошибка аутентификации');
       }
     } catch (err) {
-
-      setError('Network error. Please try again.');
+      setError('Ошибка сети. Пожалуйста, попробуйте снова.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSocialLogin = (provider) => {
-    switch(provider) {
-      case 'vk':
-        window.location.href = 'https://oauth.vk.com/authorize?client_id=YOUR_APP_ID&redirect_uri=YOUR_REDIRECT_URI&display=page&response_type=code';
-        break;
-      case 'google':
-        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=email profile';
-        break;
-      case 'github':
-        window.location.href = 'https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user';
-        break;
-      default:
-        break;
-    }
+    // Логика для входа через соцсети
   };
 
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-      <div className={styles.header_container}>
-        <div className={styles.header}>
-          <div className={styles.header_logo_container}>
-            <div className={styles.header_logo}>
-            <Image
-                className={styles.logo}
-                src="/vkont.svg"
-                alt="Next.js logo"
-                width={40}
-                height={40}
-                priority
-              />
-            </div>
-            <div className={styles.header_logo_name}>
-            <a
-            className={styles.menu_link}
-            href=""
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Bezdna
-          </a>
-            </div>
-          </div>
-          <div className={styles.header_menu_container}>
-          <a
-            className={styles.menu_link}
-            href=""
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            About
-          </a>
-          <a
-            className={styles.menu_link}
-            href=""
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            About
-          </a>
-            <a
-            className={styles.menu_link}
-            href=""
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            About
-          </a>
-          </div>
-
-        </div>
         <div className={styles.marquee}>
-          <div className={styles.track}>
-              <span>{isLogin ? logMail : regMail}</span>
-              <span>{isLogin ? logMail : regMail}</span>
-          </div>
+            <div className={styles.track}>
+                <p>Добро пожаловать в SourceMessage • Безопасное общение • Обмен файлами • Голосовые звонки •</p>
+                <p>Добро пожаловать в SourceMessage • Безопасное общение • Обмен файлами • Голосовые звонки •</p>
+            </div>
         </div>
-      </div>
-        {/* Header section remains unchanged */}
-        <div className={`${styles.container} ${isLogin ? styles.login : styles.register}`}>
+        <div className={styles.blob1}></div>
+        <div className={styles.blob2}></div>
+        <a href="/" className={styles.backLink}>
+            &larr; На главную
+        </a>
+        <div className={styles.container}>
+          <div className={styles.logoWrapper}>
+              <Image src="/message-icon.svg" alt="SourceMessage Logo" width={32} height={32} />
+          </div>
           <div className={styles.tabs}>
             <button 
               className={`${styles.tabButton} ${!isLogin ? styles.active : ''}`}
               onClick={() => setIsLogin(false)}
             >
-              Sign up
+              Регистрация
             </button>
             <button 
               className={`${styles.tabButton} ${isLogin ? styles.active : ''}`}
               onClick={() => setIsLogin(true)}
             >
-              Sign in
+              Вход
             </button>
           </div>
 
-          {error && <div className={styles.errorMessage}>{error}</div>}
+          <h2 className={styles.title}>{isLogin ? 'С возвращением!' : 'Создайте аккаунт'}</h2>
+          <p className={styles.subtitle}>{isLogin ? 'Войдите, чтобы продолжить' : 'Присоединяйтесь к нам сегодня'}</p>
+
+          {error && <div className={styles.errorMessageGlobal}>{error}</div>}
 
           <form className={styles.form} onSubmit={handleSubmit}>
             {!isLogin && (
               <div className={styles.formGroup}>
-                <label htmlFor="name" className={styles.label}>Name</label>
                 <input
                   type="text"
                   id="name"
                   name="name"
                   className={`${styles.input} ${errors.name ? styles.errorInput : ''}`}
-                  placeholder="Enter your name"
+                  placeholder=" "
                   value={formData.name}
                   onChange={handleChange}
                 />
+                <label htmlFor="name" className={styles.label}>Имя</label>
                 {errors.name && <span className={styles.errorMessage}>{errors.name}</span>}
               </div>
             )}
             
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.label}>Email</label>
               <input
                 type="email"
                 id="email"
                 name="email"
                 className={`${styles.input} ${errors.email ? styles.errorInput : ''}`}
-                placeholder="Enter your email"
+                placeholder=" "
                 value={formData.email}
                 onChange={handleChange}
               />
+              <label htmlFor="email" className={styles.label}>Email</label>
               {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.label}>Password</label>
               <input
                 type="password"
                 id="password"
                 name="password"
                 className={`${styles.input} ${errors.password ? styles.errorInput : ''}`}
-                placeholder="Enter password (min. 6 characters)"
+                placeholder=" "
                 value={formData.password}
                 onChange={handleChange}
               />
+              <label htmlFor="password" className={styles.label}>Пароль</label>
               {errors.password && <span className={styles.errorMessage}>{errors.password}</span>}
             </div>
             
             {!isLogin && (
               <div className={styles.formGroup}>
-                <label htmlFor="confirmPassword" className={styles.label}>Confirm Password</label>
                 <input
                   type="password"
                   id="confirmPassword"
                   name="confirmPassword"
                   className={`${styles.input} ${errors.confirmPassword ? styles.errorInput : ''}`}
-                  placeholder="Repeat your password"
+                  placeholder=" "
                   value={formData.confirmPassword}
                   onChange={handleChange}
                 />
+                <label htmlFor="confirmPassword" className={styles.label}>Подтвердите пароль</label>
                 {errors.confirmPassword && <span className={styles.errorMessage}>{errors.confirmPassword}</span>}
               </div>
             )}
             
-            <div className={styles.formGroup}>
-              <button 
-                type="submit" 
-                className={styles.button}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : isLogin ? 'Log in' : 'Register'}
-              </button>
-            </div>
+            <button 
+              type="submit" 
+              className={styles.submitButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Выполняется...' : isLogin ? 'Войти' : 'Создать аккаунт'}
+            </button>
             
-            <label htmlFor="difference" className={styles.label}>Or</label>
-            <div className={styles.formGroup2}>
+            <div className={styles.divider}>
+                <span>Или войдите с помощью</span>
+            </div>
+
+            <div className={styles.socialLogins}>
               <button 
                 type="button" 
-                className={styles.buttonDiff}
-                onClick={() => handleSocialLogin('vk')}
-              >
-                <Image
-                  className={styles.logo}
-                  src="/vkont.svg"
-                  alt="VK logo"
-                  width={40}
-                  height={40}
-                  priority
-                />
-              </button>
-              
-              <button 
-                type="button" 
-                className={styles.buttonDiff}
+                className={styles.socialButton}
                 onClick={() => handleSocialLogin('google')}
               >
-                <Image
-                  className={styles.logo}
-                  src="/google.svg"
-                  alt="Google logo"
-                  width={40}
-                  height={40}
-                  priority
-                />
+                <Image src="/google.svg" alt="Google" width={24} height={24}/>
               </button>
               
               <button 
                 type="button" 
-                className={styles.buttonDiff}
+                className={styles.socialButton}
                 onClick={() => handleSocialLogin('github')}
               >
-                <Image
-                  className={styles.logo}
-                  src="/github.svg"
-                  alt="GitHub logo"
-                  width={40}
-                  height={40}
-                  priority
-                />
+                <Image src="/github.svg" alt="GitHub" width={24} height={24} />
+              </button>
+
+              <button 
+                type="button" 
+                className={styles.socialButton}
+                onClick={() => handleSocialLogin('vk')}
+              >
+                <Image src="/vkont.svg" alt="VK" width={24} height={24} />
               </button>
             </div>
           </form>
         </div>
-        <div className={styles.footer_container}></div>
-      </main>
     </div>
   );
 }

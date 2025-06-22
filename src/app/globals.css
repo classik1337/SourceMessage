@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: #ffffff;
   --background-rgb: 255, 255, 255;

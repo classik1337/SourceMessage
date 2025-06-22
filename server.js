@@ -516,75 +516,53 @@ io.on('connection', (socket) => {
   // Обработчик отправки сообщения
   socket.on('send-message', async (data) => {
     try {
-      const { messageId, chatId, content, receiverId } = data;
-      const senderId = socket.userId;
-      
-      if (!messageId || !chatId || !content || !receiverId || !senderId) {
-        console.error('Missing required fields:', { messageId, chatId, content, receiverId, senderId });
+      // Поддержка вложенного объекта message
+      const msg = data.message || data;
+
+      console.log('\n=== [SOCKET] Получен send-message ===');
+      console.log('data:', JSON.stringify(data, null, 2));
+      console.log('content:', msg.content);
+      console.log('text:', msg.text);
+      console.log('files:', msg.files);
+
+      if (
+        (!msg.content && !msg.text) &&
+        (!msg.files || msg.files.length === 0)
+      ) {
+        console.log('[SOCKET] Пропущено пустое сообщение');
         return;
       }
-      
-      // Добавляем подробное логирование
-      console.log('\n=== Новое сообщение ===');
-      console.log(`Пользователь ${senderId} отправил сообщение ${messageId}`);
-      console.log('Детали сообщения:', {
-        от: senderId,
-        кому: receiverId,
-        чат: chatId,
-        ID_сообщения: messageId,
-        текст: content.substring(0, 50) + (content.length > 50 ? '...' : '') // логируем только начало сообщения
-      });
 
-      // Получаем информацию о пользователях для логов
-      const senderInfo = usersInfo.get(senderId);
-      const receiverInfo = usersInfo.get(receiverId);
-      console.log('Информация об участниках:', {
-        отправитель: {
-          id: senderId,
-          логин: senderInfo?.login || 'неизвестно',
-          статус: senderInfo?.status || 'неизвестно'
-        },
-        получатель: {
-          id: receiverId,
-          логин: receiverInfo?.login || 'неизвестно',
-          статус: receiverInfo?.status || 'неизвестно'
-        }
-      });
+      const message = {
+        id: msg.id || data.messageId,
+        content: msg.content,
+        text: msg.text,
+        sent_at: msg.sent_at || new Date().toISOString(),
+        sender_id: msg.sender_id || socket.userId,
+        chat_id: msg.chat_id || data.chatId,
+        type: msg.type || data.type || 'text',
+        files: msg.files || [],
+        fileName: msg.fileName || data.fileName,
+        fileSize: msg.fileSize || data.fileSize
+      };
+      console.log('[SOCKET] Итоговый message для new-message:', JSON.stringify(message, null, 2));
 
-      // Получаем сокет получателя
-      const receiverSocketId = userSockets.get(receiverId);
-      
-      // Отправляем сообщение получателю, если он онлайн
+      const receiverSocketId = userSockets.get(data.receiverId || msg.receiverId);
+
       if (receiverSocketId) {
-        console.log('Отправка сообщения получателю...');
-        io.to(receiverSocketId).emit('new-message', {
-          message: {
-            id: messageId,
-            content,
-            sent_at: new Date().toISOString(),
-            sender_id: senderId,
-            chat_id: chatId
-          },
-          senderId,
-          chatId
-        });
-        console.log('Сообщение успешно доставлено получателю');
-      } else {
-        console.log('Получатель оффлайн, сообщение будет доставлено при подключении');
+        io.to(receiverSocketId).emit('new-message', { message });
       }
+      io.to(socket.id).emit('new-message', { message });
 
-      // Отправляем подтверждение отправителю
       socket.emit('message-sent', {
-        messageId,
-        chatId,
+        messageId: message.id,
+        chatId: message.chat_id,
         timestamp: new Date().toISOString()
       });
-      console.log('Подтверждение отправлено отправителю');
-
     } catch (error) {
       console.error('Ошибка при обработке сообщения:', error);
       socket.emit('message-error', {
-        messageId,
+        messageId: data.messageId,
         error: 'Failed to process message'
       });
     }

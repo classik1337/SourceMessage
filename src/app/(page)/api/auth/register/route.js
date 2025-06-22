@@ -18,7 +18,7 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
-export async function POST(request: Request) {
+export async function POST(request) {
   let connection;
   try {
     const { email, password, name } = await request.json();
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     // Создание JWT токена
     const token = jwt.sign(
       { id: newUserId, login: name, role: 'user' },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -116,4 +116,4 @@ export async function POST(request: Request) {
       connection.release();
     }
   }
-}
+} 
