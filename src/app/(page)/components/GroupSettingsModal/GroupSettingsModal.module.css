@@ -1,0 +1,379 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal {
+  background: #1e1e1e;
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 255, 159, 0.2);
+  width: 90%;
+  max-width: 450px;
+  border: 1px solid rgba(0, 255, 159, 0.2);
+  color: #eee;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #00ff9f;
+  text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00ff9f;
+}
+
+.changeAvatarButton {
+  background: transparent;
+  color: #00ff9f;
+  border: 1px solid #00ff9f;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changeAvatarButton:hover {
+  background: rgba(0, 255, 159, 0.1);
+}
+
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nameSection label {
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.nameInput {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #2a2a2a;
+  color: #eee;
+  font-size: 1em;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saveButton {
+  background-color: #00ff9f;
+  color: #111;
+}
+
+.saveButton:hover {
+  opacity: 0.9;
+}
+
+.saveButton:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background-color: #444;
+  color: #eee;
+}
+
+.cancelButton:hover {
+  background-color: #555;
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.8em;
+    cursor: pointer;
+}
+
+.readOnlyContainer {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.readOnlyMessage {
+  color: #ff4d4d;
+  font-size: 1.1em;
+  font-weight: 500;
+  background-color: rgba(255, 77, 77, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.membersSection {
+  margin-bottom: 20px;
+}
+.membersList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.memberItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  background: #232323;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.memberItemCreator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  background: #1a2e1a;
+  border: 2px solid #00ff9f;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.memberAvatar {
+  border-radius: 50%;
+  margin-right: 12px;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border: 2px solid #00ff9f;
+}
+.memberName {
+  font-weight: 600;
+  color: #fff;
+  margin-right: 10px;
+}
+.roleTagCreator {
+  background: #00ff9f;
+  color: #111;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 2px 10px;
+  margin-left: 8px;
+  font-weight: 700;
+}
+.roleTagAdmin {
+  background: #2d7fff;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 2px 10px;
+  margin-left: 8px;
+  font-weight: 700;
+}
+.roleTag {
+  background: #e0e0e0;
+  color: #333;
+  border-radius: 8px;
+  font-size: 12px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+.error {
+  color: #c00;
+  margin: 8px 0;
+}
+
+.actionsRow {
+  display: flex;
+  width: 100%;
+  gap: 0;
+  margin-top: 16px;
+}
+.actionsRow .cancelButton,
+.actionsRow .saveButton {
+  width: 50%;
+  border-radius: 0 0 0 16px;
+  margin: 0;
+}
+.actionsRow .saveButton {
+  border-radius: 0 0 16px 0;
+}
+.addMembersButton {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 0;
+  background: #00ff9f;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.addMembersButton:hover {
+  background: #00e68c;
+}
+
+.actionsButtonsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin: 20px 0 24px 0;
+}
+.actionsButtonsBlock .cancelButton,
+.actionsButtonsBlock .saveButton,
+.actionsButtonsBlock .addMembersButton {
+  width: 100%;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 12px 0;
+  margin: 0;
+}
+.actionsButtonsBlock .cancelButton {
+  background: #444;
+  color: #eee;
+  border: none;
+  transition: background 0.2s;
+}
+.actionsButtonsBlock .cancelButton:hover {
+  background: #555;
+}
+.actionsButtonsBlock .saveButton {
+  background: #00ff9f;
+  color: #111;
+  border: none;
+  transition: background 0.2s;
+}
+.actionsButtonsBlock .saveButton:hover {
+  background: #00e68c;
+}
+.actionsButtonsBlock .saveButton:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+.actionsButtonsBlock .addMembersButton {
+  background: #00ff9f;
+  color: #111;
+  border: none;
+  transition: background 0.2s;
+}
+.actionsButtonsBlock .addMembersButton:hover {
+  background: #00e68c;
+}
+
+.actionsRowCompact {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+  margin: 6px 0 0 0;
+}
+.cancelButtonCompact, .saveButtonCompact {
+  flex: 1 1 0;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 8px 0;
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancelButtonCompact {
+  background: #444;
+  color: #eee;
+}
+.cancelButtonCompact:hover {
+  background: #555;
+}
+.saveButtonCompact {
+  background: #00ff9f;
+  color: #111;
+}
+.saveButtonCompact:hover {
+  background: #00e68c;
+}
+.saveButtonCompact:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+.addMembersButton {
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding: 8px 0;
+  background: #00ff9f;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.addMembersButton:hover {
+  background: #00e68c;
+}
+
+.removeMemberButton {
+  margin-left: auto;
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 0;
+}
+.removeMemberButton:hover {
+  background: #d90000;
+} 
